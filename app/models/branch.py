@@ -6,13 +6,17 @@ Base = declarative_base()
 
 class Branch(Base):
     __tablename__ = "branch"
+    
     id = Column(Integer, primary_key=True)
     address = Column(String, nullable=False)
     opening = Column(Time, nullable=False)
     closing = Column(Time, nullable=False)
     
     company_id = Column(Integer, ForeignKey('company.id'), nullable=False)
-    company = relationship("Company", back_populates="branch")
+    company = relationship("Company", back_populates="branches")
     
     employees = relationship("Employee", back_populates="branch")
+    
+    regular_intensities = relationship("BaseIntensity", back_populates="branch")
+
     

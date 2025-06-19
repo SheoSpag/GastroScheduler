@@ -1,6 +1,6 @@
 from enum import Enum
 
-class LockStatus(Enum):
+class LockReason(Enum):
     WISH = "wish"
     VACATION = "vacation"
     SICK = "sick"
