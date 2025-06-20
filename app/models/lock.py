@@ -2,12 +2,12 @@ from sqlalchemy import Column, Integer, Date, DateTime, String, ForeignKey, Enum
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
+from db.db import Base
 
 from enum import Enum 
 
 from lock_reason import LockReason
 
-Base = declarative_base()
 
 class Lock(Base):
     __tablename__ = "lock"

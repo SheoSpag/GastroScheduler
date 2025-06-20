@@ -1,8 +1,7 @@
 from sqlalchemy import Column, Integer, ForeignKey, PrimaryKeyConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
-
-Base = declarative_base()
+from db.db import Base
 
 class BaseIntensity(Base):
     __tablename__ = "base_intensity"

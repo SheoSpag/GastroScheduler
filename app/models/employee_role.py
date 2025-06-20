@@ -1,7 +1,6 @@
 from sqlalchemy import Table, Column, Integer, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
-
-Base = declarative_base()
+from db.db import Base
 
 employee_role = Table(
     "employee_role",

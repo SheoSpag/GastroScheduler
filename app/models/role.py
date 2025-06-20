@@ -1,10 +1,10 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
+from db.db import Base
 
 from employee_role import employee_role
 
-Base = declarative_base()
 
 class Role(Base):
     __tablename__ = "role"
