@@ -1,9 +1,10 @@
 from sqlalchemy import Column, Integer, DateTime, Date, ForeignKey 
 from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declarative_base
-from db.db import Base
+from app.db.db import Base
 
 class Shift(Base):
+    __tablename__ = "shift"
+    
     id = Column(Integer, primary_key=True)
     start_date_time = Column(DateTime, nullable=False)
     end_date_time = Column(DateTime, nullable=False)

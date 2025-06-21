@@ -1,8 +1,10 @@
 from fastapi import FastAPI, Depends, HTTPException
-from sqlalchemy.orm import Session
 from app.db.db import Base
+from app.routes.idex_router import router
 
 app = FastAPI()
+
+app.include_router(router)
 
 @app.get("/")
 def root():

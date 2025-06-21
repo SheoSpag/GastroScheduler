@@ -1,9 +1,8 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declarative_base
-from db.db import Base
+from app.db.db import Base
 
-from employee_role import employee_role
+from app.models.employee_role import employee_role
 
 
 class Role(Base):

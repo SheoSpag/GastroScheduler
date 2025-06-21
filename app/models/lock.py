@@ -1,12 +1,9 @@
-from sqlalchemy import Column, Integer, Date, DateTime, String, ForeignKey, Enum, PrimaryKeyConstraint
+from sqlalchemy import Column, Integer, Date, DateTime, String, ForeignKey, PrimaryKeyConstraint, Enum as SQLEnum
 from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
-from db.db import Base
+from app.db.db import Base
 
-from enum import Enum 
-
-from lock_reason import LockReason
+from app.models.lock_reason import LockReason
 
 
 class Lock(Base):
@@ -14,7 +11,7 @@ class Lock(Base):
     
     locked_date = Column(Date, nullable=False)
     note = Column(String, nullable=True)
-    reason = Column(Enum(LockReason), default=LockReason.WISH)
+    reason = Column(SQLEnum(LockReason), default=LockReason.WISH)
     created_at = Column(DateTime, default=datetime.now)
     
     employee_id = Column(Integer, ForeignKey("employee.id"), nullable=False)    
