@@ -4,7 +4,6 @@ from app.models import (area, base_intensity, branch, company, employee_role, em
 
 def init_db():
     print("Creating tables in the database..")
-    print(Base.metadata.tables.keys()) 
     Base.metadata.create_all(bind=engine)
     print("Tables created successfully")
     
