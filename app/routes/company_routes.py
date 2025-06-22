@@ -32,7 +32,7 @@ def update_company(company_id: int, company: CompanyUpdate, db: Session = Depend
         raise HTTPException(status_code=404, detail="Company not found")
     return db_company
 
-@router.delete("/{company_id}", CompanyOut)
+@router.delete("/{company_id}", response_model=CompanyOut)
 def delete_company(company_id: int, db: Session = Depends(get_db)):
     db_company = company_delete(db, company_id)
     if not db_company:
