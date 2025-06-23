@@ -10,17 +10,19 @@ router = APIRouter()
 
 @router.post("/", response_model=BranchCreate, status_code=status.HTTP_201_CREATED)
 def create_branch(branch: BranchCreate, db: Session = Depends(get_db)):
-    db_branch = branch_create(db, branch)
-    return db_branch
+    created_branch = branch_create(db, branch)
+    return created_branch
 
 @router.get("/{branch_id}", response_model=BranchOut, status_code=status.HTTP_200_OK)
 def get_branch(branch_id: int, db: Session = Depends(get_db)):
-    db_branch = get_branch(db, branch_id)
-    return db_branch
+    searched_branch = branch_get(db, branch_id)
+    if not searched_branch:
+        raise HTTPException(status_code=404, detail="Branch not found")
+    return searched_branch
 
 @router.get("/", response_model=List[BranchOut])
 def get_branches(skip: int = 0, limit: int = 100, db : Session = Depends(get_db)):
-    db_branches = get_branches(db, skip=skip, limit=limit)
+    db_branches = branches_get(db, skip=skip, limit=limit)
     return db_branches
 
 @router.patch("/{branch_id}", response_model=BranchOut)
@@ -28,7 +30,7 @@ def update_branch(branch_id: int, branch: BranchUpdate, db: Session = Depends(ge
     updated_branch = branch_update(db, branch_id, branch)
     if not updated_branch:
         raise HTTPException(status_code=404, detail="Branch not found")
-    return update_branch
+    return updated_branch
 
 @router.delete("/{branch_id}", response_model=BranchOut)
 def delete_branch(branch_id: int, db: Session = Depends(get_db)):

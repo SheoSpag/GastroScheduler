@@ -13,12 +13,19 @@ def get_branches(db: Session, skip: int = 0, limit: int = 100):
 
 def create_branch(db: Session, branch: BranchCreate):
     from app.models.branch import Branch
+    from app.models.base_intensity import BaseIntensity
     
     created_branch = Branch(address=branch.address, opening=branch.opening, closing=branch.closing, company_id=branch.company_id)
     
-    db.add(create_branch)
+    db.add(created_branch)
     db.commit()
-    db.refresh(create_branch)
+    db.refresh(created_branch)
+    
+    for day in range(7):
+        base_intensity = BaseIntensity(week_day=day, morning_intensity = 0, afternoon_intensity=0, evening_intensity=0, branch_id=created_branch.id)
+        db.add(base_intensity)
+    
+    db.commit()
     
     return created_branch
 
