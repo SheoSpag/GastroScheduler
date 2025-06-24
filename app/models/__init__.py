@@ -1,6 +1,6 @@
 from .company import Company
 from .branch import Branch
-from .base_intensity import BaseIntensity
+from .day_settings import DaySettings
 from .area import Area
 from .employee_role import employee_role
 from .employee import Employee
