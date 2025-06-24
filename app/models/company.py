@@ -8,4 +8,4 @@ class Company(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
     
-    branches = relationship("Branch", back_populates="company")
+    branches = relationship("Branch", back_populates="company", cascade="all, delete-orphan")

@@ -13,4 +13,4 @@ class Area(Base):
     maximum_staff = Column(Integer, nullable=False)
     name = Column(String, nullable=False)
     
-    roles = relationship("Role", back_populates="area")
+    roles = relationship("Role", back_populates="area", cascade="all, delete-orphan")

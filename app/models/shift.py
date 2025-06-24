@@ -10,9 +10,9 @@ class Shift(Base):
     end_date_time = Column(DateTime, nullable=False)
     date = Column(Date, nullable=False)
     
-    role_id = Column(Integer, ForeignKey("role.id"), nullable=False)
+    role_id = Column(Integer, ForeignKey("role.id", ondelete="CASCADE"), nullable=False)
     role = relationship("Role") # USAR JOINEDLOAD PARA CONSULTAS CON SESSION.QUERY
     
-    employee_id = Column(Integer, ForeignKey("employee.id"), nullable=False)
+    employee_id = Column(Integer, ForeignKey("employee.id", ondelete="CASCADE"), nullable=False)
     employee = relationship("Employee", back_populates="shifts")
     

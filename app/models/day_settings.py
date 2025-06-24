@@ -14,7 +14,7 @@ class DaySettings(Base):
     opening = Column(Time, nullable=False)
     closing = Column(Time, nullable=False)
     
-    branch_id = Column(Integer, ForeignKey("branch.id"), nullable=False)
+    branch_id = Column(Integer, ForeignKey("branch.id", ondelete="CASCADE"), nullable=False)
     branch = relationship("Branch", back_populates="days_settings")
     
     __table_args__ = (

@@ -15,14 +15,14 @@ def create_branch(db: Session, branch: BranchCreate):
     from app.models.branch import Branch
     from app.models.day_settings import DaySettings
     
-    created_branch = Branch(address=branch.address, opening=branch.opening, closing=branch.closing, company_id=branch.company_id)
+    created_branch = Branch(address=branch.address, company_id=branch.company_id)
     
     db.add(created_branch)
     db.commit()
     db.refresh(created_branch)
     
     for day in range(7):
-        base_intensity = DaySettings(week_day=day, morning_intensity = 0, afternoon_intensity=0, evening_intensity=0, branch_id=created_branch.id)
+        base_intensity = DaySettings(week_day=day, morning_intensity = 0, afternoon_intensity=0, evening_intensity=0, opening="00:00:00", closing="00:00:00", branch_id=created_branch.id)
         db.add(base_intensity)
     
     db.commit()
@@ -35,9 +35,11 @@ def update_branch(db: Session, branch_id: int, branch : BranchUpdate):
         return None
     
     update_data = branch.model_dump(exclude_unset=True)
+    print(update_data)
+    
     for key, value in update_data.items():
         setattr(searched_branch, key, value)
-        
+    
     db.commit()
     db.refresh(searched_branch)
     return searched_branch

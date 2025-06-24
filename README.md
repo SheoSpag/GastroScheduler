@@ -1,5 +1,4 @@
-🧠 Tentative Project Name  
-AutoScheduler (temporary name)
+🧠 GastroScheduler
 
 🎯 Project Goal
 
@@ -13,27 +12,7 @@ The system will generate weekly shift plans that:
 
 This will allow businesses to optimize human resources with minimal manual input, improve efficiency, and eliminate common scheduling errors.
 
-🧑‍💼 Target Users
-
-Any business that needs to schedule employee shifts regularly. For example:
-
-- Restaurants
-- Cafés
-- Fast food locations
-- Retail stores
-- Hotels
-
 🌐 Type of Application
 
 Web application, with a backend-focused architecture.  
 Frontend will be minimal, using Bootstrap to simplify the UI without requiring advanced design skills.
-
-🔧 Recommended Technologies
-
-| Component   | Technology                         | Reason                                                       |
-| ----------- | ---------------------------------- | ------------------------------------------------------------ |
-| Backend     | Python + FastAPI                   | Popular, beginner-friendly, well-documented                  |
-| Frontend    | HTML + Bootstrap                   | Clean, quick, and easy UI implementation                     |
-| Database    | PostgreSQL (or SQLite for testing) | Reliable relational database, widely used in production      |
-| ORM         | Tortoise ORM                       | Avoids raw SQL and simplifies data operations                |
-| Weather API | OpenWeatherMap API                 | To identify and prioritize high-demand days based on weather |

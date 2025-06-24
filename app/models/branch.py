@@ -8,11 +8,11 @@ class Branch(Base):
     id = Column(Integer, primary_key=True)
     address = Column(String, nullable=False)
     
-    company_id = Column(Integer, ForeignKey('company.id'), nullable=False)
+    company_id = Column(Integer, ForeignKey('company.id', ondelete="CASCADE"), nullable=False)
     company = relationship("Company", back_populates="branches")
     
-    employees = relationship("Employee", back_populates="branch")
+    employees = relationship("Employee", back_populates="branch", cascade="all, delete-orphan")
     
-    days_settings = relationship("DaySettings", back_populates="branch")
+    days_settings = relationship("DaySettings", back_populates="branch", cascade="all, delete-orphan")
 
     

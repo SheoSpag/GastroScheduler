@@ -14,7 +14,7 @@ class Lock(Base):
     reason = Column(SQLEnum(LockReason), default=LockReason.WISH)
     created_at = Column(DateTime, default=datetime.now)
     
-    employee_id = Column(Integer, ForeignKey("employee.id"), nullable=False)    
+    employee_id = Column(Integer, ForeignKey("employee.id", ondelete="CASCADE"), nullable=False)    
     employee = relationship("Employee", back_populates="locks")
     
     

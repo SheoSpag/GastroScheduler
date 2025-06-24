@@ -13,7 +13,7 @@ class Employee(Base):
     hourly_wage = Column(Float, nullable=True)
     monthly_hours = Column(Integer, nullable=False)
     
-    branch_id = Column(Integer, ForeignKey("branch.id"), nullable=False)
+    branch_id = Column(Integer, ForeignKey("branch.id", ondelete="CASCADE"), nullable=False)
     branch = relationship("Branch", back_populates="employees")
     
     locks = relationship("Lock", back_populates="employee")
