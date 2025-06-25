@@ -19,7 +19,7 @@ def update_day_settings(db: Session, branch_id: int, week_day: int, day_settings
     update_data = day_settings.model_dump(exclude_unset=True)
     for key, value in update_data.items():
         setattr(searched_day, key, value)
-        
+         
     db.commit()
     db.refresh(searched_day)
     return searched_day

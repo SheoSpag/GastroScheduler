@@ -22,7 +22,6 @@ class SettingsUpdate(BaseModel):
     closing: Optional[time] = None 
     
 class SettingsOut(SettingsBase):
-    id: int
     
     class Config:
         orm_mode = True

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List
-from sqlalchemy import Session 
+from sqlalchemy.orm import Session 
 
 from app.db.db import get_db
 from app.schemas.day_settings import SettingsCreate, SettingsUpdate, SettingsOut
