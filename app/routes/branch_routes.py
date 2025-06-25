@@ -17,25 +17,25 @@ def create_branch(branch: BranchCreate, db: Session = Depends(get_db)):
 def get_branch(branch_id: int, db: Session = Depends(get_db)):
     searched_branch = branch_get(db, branch_id)
     if not searched_branch:
-        raise HTTPException(status_code=404, detail="Branch not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Branch not found")
     return searched_branch
 
 @router.get("/", response_model=List[BranchOut])
 def get_branches(skip: int = 0, limit: int = 100, db : Session = Depends(get_db)):
-    db_branches = branches_get(db, skip=skip, limit=limit)
-    return db_branches
+    all_branches = branches_get(db, skip=skip, limit=limit)
+    return all_branches
 
 @router.patch("/{branch_id}", response_model=BranchOut)
 def update_branch(branch_id: int, branch: BranchUpdate, db: Session = Depends(get_db)):
     updated_branch = branch_update(db, branch_id, branch)
     if not updated_branch:
-        raise HTTPException(status_code=404, detail="Branch not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Branch not found")
     return updated_branch
 
 @router.delete("/{branch_id}", response_model=BranchOut)
 def delete_branch(branch_id: int, db: Session = Depends(get_db)):
     deleted_branch = branch_delete(db, branch_id)
     if not deleted_branch:
-        raise HTTPException(status_code=404, detail="Branch not found")
-    return deleted_branch
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Branch not found")
+    return deleted_branch 
     

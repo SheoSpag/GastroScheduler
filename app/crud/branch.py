@@ -35,7 +35,6 @@ def update_branch(db: Session, branch_id: int, branch : BranchUpdate):
         return None
     
     update_data = branch.model_dump(exclude_unset=True)
-    print(update_data)
     
     for key, value in update_data.items():
         setattr(searched_branch, key, value)

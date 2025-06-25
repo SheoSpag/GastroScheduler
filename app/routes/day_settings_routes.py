@@ -13,18 +13,18 @@ router = APIRouter()
 def get_one_day_settings(branch_id: int, week_day: int, db: Session = Depends(get_db)):
     searched_branch = branch_get(db, branch_id)
     if not searched_branch:
-        raise HTTPException(status_code=404, detail="Branch not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Branch not found")
     
     searched_settings = onde_day_settings_get(db, branch_id, week_day)
     if not searched_settings:
-        raise HTTPException(status_code=404, detail="Day settings not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Day settings not found")
     return searched_settings
 
 @router.get("/{branch_id}", response_model=List[SettingsOut])
 def get_all_branch_days_settings(branch_id: int, db: Session = Depends(get_db)):
     searched_branch = branch_get(db, branch_id)
     if not searched_branch:
-        raise HTTPException(status_code=404, detail="Branch not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Branch not found")
     
     branch_settings = all_branch_settings_get(db, branch_id)
     return branch_settings
@@ -33,11 +33,11 @@ def get_all_branch_days_settings(branch_id: int, db: Session = Depends(get_db)):
 def update_day_settings(branch_id: int, week_day: int, base_intensity: SettingsUpdate, db: Session = Depends(get_db)):
     searched_branch = branch_get(db, branch_id)
     if not searched_branch:
-        raise HTTPException(status_code=404, detail="Branch not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Branch not found")
     
     searched_settings = onde_day_settings_get(db, branch_id, week_day)
     if not searched_settings:
-        raise HTTPException(status_code=404, detail="Day setting not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Day setting not found")
     
     updated_intensity = day_settings_update(db, branch_id, week_day, base_intensity)
     return updated_intensity
