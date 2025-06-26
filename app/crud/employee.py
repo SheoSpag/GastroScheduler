@@ -6,15 +6,15 @@ def get_employee(db: Session, employee_id: int):
     
     return db.query(Employee).filter(Employee.id == employee_id).first()
 
-def get_branch_employees(db: Session, branch_id: int,  skip: int = 0, limit: int = 100):
-    from app.models.employee import Employee
-    
-    return db.query(Employee).filter(Employee.branch_id == branch_id).offset(skip).limit(limit).all()
-
 def get_all_employees(db: Session,  skip: int = 0, limit: int = 100):
     from app.models.employee import Employee
     
     return db.query(Employee).offset(skip).limit(limit).all()
+
+def get_employee_locks(db: Session, employee_id: int):
+    from app.models.lock import Lock
+    
+    return db.query(Lock).filter(Lock.employee_id == employee_id).all()
 
 def create_employee(db: Session, employee: EmployeeCreate):
     from app.models.employee import Employee

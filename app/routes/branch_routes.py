@@ -4,7 +4,9 @@ from sqlalchemy.orm import Session
 
 from app.db.db import get_db
 from app.schemas.branch import BranchCreate, BranchOut, BranchUpdate
-from app.crud.branch import get_branch as branch_get, get_branches as branches_get, create_branch as branch_create, update_branch as branch_update, delete_branch as branch_delete
+from app.schemas.employee import EmployeeOut
+from app.schemas.lock import LockOut
+from app.crud.branch import get_branch as branch_get, get_branches as branches_get, create_branch as branch_create, update_branch as branch_update, delete_branch as branch_delete, get_branch_employees as branch_employees_get, get_branch_locks as branch_locks_get
 
 router = APIRouter()
 
@@ -20,10 +22,26 @@ def get_branch(branch_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Branch not found")
     return searched_branch
 
+@router.get("/employees/{branch_id}", response_model=List[EmployeeOut], status_code=status.HTTP_200_OK)
+def get_branch_employees(branch_id: int, skip: int = 0, limit: int = 100, db : Session = Depends(get_db)):
+    searched_branch = branch_get(db, branch_id)
+    if not searched_branch:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Branch not found")
+    
+    searched_employees = branch_employees_get(db ,branch_id, skip=skip, limit=limit)
+    return searched_employees
+
 @router.get("/", response_model=List[BranchOut])
 def get_branches(skip: int = 0, limit: int = 100, db : Session = Depends(get_db)):
     all_branches = branches_get(db, skip=skip, limit=limit)
     return all_branches
+
+@router.get("/locks/{branch_id}", response_model=List[LockOut], status_code=status.HTTP_200_OK)
+def get_branch_locks(branch_id: int, db: Session = Depends(get_db)):
+    searched_locks = branch_locks_get(db, branch_id)
+    if not searched_locks:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Branch not found")
+    return searched_locks
 
 @router.patch("/{branch_id}", response_model=BranchOut)
 def update_branch(branch_id: int, branch: BranchUpdate, db: Session = Depends(get_db)):
