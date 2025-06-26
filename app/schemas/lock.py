@@ -7,16 +7,16 @@ class LockCBase(BaseModel):
     created_date: Optional[datetime] = datetime.now(timezone.utc)
     note: Optional[str] = None
     locked_date: date
-    lock_reason: LockReason
+    lock_reason: Optional[LockReason] = LockReason.WISH
     employee_id: int
     
 class LockCreate(LockCBase):
     pass
 
 class LockUpdate(BaseModel):
-    note: Optional[str]
-    locked_date: Optional[date]
-    lock_reason: Optional[LockReason]
+    note: Optional[str] = None
+    locked_date: Optional[date] = None
+    lock_reason: Optional[LockReason] = None
     
 class LockOut(LockCBase):
     id: int

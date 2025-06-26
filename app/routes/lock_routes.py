@@ -27,7 +27,7 @@ def get_lock(lock_id: int, db: Session = Depends(get_db)):
 @router.get("/", response_model=List[LockOut], status_code=status.HTTP_200_OK)
 def get_all_locks(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     all_locks = all_locks_get(db, skip=skip, limit=limit)
-    return all_locks_get
+    return all_locks
 
 @router.patch("/{lock_id}", response_model=LockOut)
 def update_lock(lock_id: int, lock: LockUpdate, db: Session = Depends(get_db)):

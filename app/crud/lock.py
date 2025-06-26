@@ -1,5 +1,7 @@
 from sqlalchemy.orm import Session
 from app.schemas.lock import LockCreate, LockUpdate
+from sqlalchemy.exc import IntegrityError
+from fastapi import HTTPException, status
 
 def get_lock(db: Session, lock_id: int):
     from app.models.lock import Lock
@@ -13,13 +15,17 @@ def get_all_locks(db: Session, skip: int = 0, limit: int = 100):
 
 def create_lock(db: Session, lock: LockCreate):
     from app.models.lock import Lock
-
-    created_lock = Lock(locked_date=lock.locked_date,  note=lock.note, reason=lock.lock_reason, employee_id=lock.employee_id)
+  
+    created_lock = Lock(locked_date=lock.locked_date,  note=lock.note, lock_reason=lock.lock_reason, employee_id=lock.employee_id)
     
     db.add(created_lock)
-    db.commit()
-    db.refresh(create_lock)
-    
+    try:
+        db.commit()
+        db.refresh(created_lock)
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="There is already a block for that employee on that date")
+
     return created_lock
 
 def delete_lock(db: Session, lock_id: int):
