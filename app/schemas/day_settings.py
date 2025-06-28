@@ -23,5 +23,4 @@ class SettingsUpdate(BaseModel):
     
 class SettingsOut(SettingsBase):
     
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
