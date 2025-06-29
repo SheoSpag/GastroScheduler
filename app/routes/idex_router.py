@@ -6,6 +6,7 @@ from app.routes.day_settings_routes import router as day_settings_router
 from app.routes.employee_routes import router as employee_router
 from app.routes.lock_routes import router as lock_router
 from app.routes.area_routes import router as area_router
+from app.routes.role_routes import router as role_router
 
 router = APIRouter()
 
@@ -14,4 +15,5 @@ router.include_router(branch_router, prefix="/branch", tags=["branches"])
 router.include_router(day_settings_router, prefix="/settings", tags=["day_settings"])
 router.include_router(employee_router, prefix="/employee", tags=["employees"])
 router.include_router(lock_router, prefix="/lock", tags=["locks"])
-router.include_router(area_router, prefix="/area", tags=["areas"]) 
+router.include_router(area_router, prefix="/area", tags=["areas"])
+router.include_router(role_router, prefix="/role", tags=["roles"])  
