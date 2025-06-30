@@ -4,8 +4,10 @@ from sqlalchemy.orm import Session
 
 from app.db.db import get_db
 from app.schemas.employee import EmployeeCreate, EmployeeOut, EmployeeUpdate
+from app.schemas.role import RoleOut
+from app.schemas.employee_role import EmployeeRoleOut
 from app.schemas.lock import LockOut
-from app.crud.employee import get_employee as employee_get, delete_employee as employee_delete, update_employee as employee_update, get_all_employees as all_employees_get, create_employee as employee_create, get_employee_locks as employee_locks_get
+from app.crud.employee import get_employee as employee_get, delete_employee as employee_delete, update_employee as employee_update, get_all_employees as all_employees_get, create_employee as employee_create, get_employee_locks as employee_locks_get, asign_employee_role as employee_role_asign, get_employee_roles as employee_roles_get
 from app.crud.branch import get_branch
 
 router = APIRouter()
@@ -29,6 +31,16 @@ def get_employee_locks(employee_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Employee not found")
     return searched_locks
 
+@router.get("/{employee_id}/roles", response_model=List[RoleOut], status_code=status.HTTP_200_OK)
+def get_employee_roles(employee_id: int, db: Session = Depends(get_db)):
+    employee_roles = employee_roles_get(db, employee_id)
+    
+    if not employee_roles:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Employee not found")
+    
+    return employee_roles
+    
+
 @router.post("/", response_model=EmployeeCreate, status_code=status.HTTP_201_CREATED)
 def create_employee(employee: EmployeeCreate, db: Session = Depends(get_db)):
     searched_branch = get_branch(db, employee.branch_id)
@@ -37,6 +49,18 @@ def create_employee(employee: EmployeeCreate, db: Session = Depends(get_db)):
     
     created_employee = employee_create(db, employee)
     return created_employee
+
+@router.post("/{employee_id}/role/{role_id}", response_model=EmployeeRoleOut, status_code=status.HTTP_201_CREATED)
+def asign_employee_role(employee_id: int, role_id: int, db: Session = Depends(get_db)):
+    result = employee_role_asign(db, employee_id, role_id)
+    
+    if not result:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Employee or role does not exist, or role already assigned.")
+    
+    employee, role = result
+    return EmployeeRoleOut(employee=employee, role=role)
+
+
 
 @router.patch("/{employee_id}", response_model=EmployeeOut)
 def update_employee(employee_id: int, employee: EmployeeUpdate, db: Session = Depends(get_db)):

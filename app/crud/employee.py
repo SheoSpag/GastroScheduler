@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from app.schemas.employee import EmployeeUpdate, EmployeeCreate
+from app.crud.role import get_role
 
 def get_employee(db: Session, employee_id: int):
     from app.models.employee import Employee
@@ -51,4 +52,30 @@ def delete_employee(db: Session, employee_id):
     db.commit()
     
     return searched_employee
+
+def asign_employee_role(db: Session, employee_id: int, role_id: int):
+    
+    searched_employee = get_employee(db, employee_id)
+    
+    searched_role = get_role(db, role_id)
+    
+    if not searched_employee or not searched_role:
+        return None
+    
+    if searched_role in searched_employee.roles:
+        return None
+    
+    searched_employee.roles.append(searched_role)
+    db.commit()
+    db.refresh(searched_employee)
+    
+    return searched_employee, searched_role
+
+def get_employee_roles(db: Session, employee_id: int):
+    searched_employee = get_employee(db, employee_id)
+    
+    if not searched_employee:
+        return None
+    
+    return searched_employee.roles
     

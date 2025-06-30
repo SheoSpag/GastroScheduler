@@ -11,6 +11,15 @@ def get_roles(db: Session, skip: int = 0, limit: int = 100):
     
     return db.query(Role).offset(skip).limit(limit).all()
 
+def get_role_employees(db: Session, role_id: int):
+    searched_role = get_role(db, role_id)
+    
+    if not searched_role:
+        return None
+    
+    return searched_role.employees
+    
+
 def create_role(db: Session, role: RoleCreate):
     from app.models.role import Role
     
