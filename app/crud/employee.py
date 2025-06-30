@@ -33,9 +33,9 @@ def update_employee(db:Session, employee_id: int, employee: EmployeeUpdate):
     if not searched_employee:
         return None
     
-    update_date = employee.model_dump(exclude_unset=True)
+    update_data = employee.model_dump(exclude_unset=True)
     
-    for key, value in update_date.items():
+    for key, value in update_data.items():
         setattr(searched_employee, key, value)
         
     db.commit()
