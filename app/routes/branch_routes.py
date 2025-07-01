@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status, Response
 from typing import List
 from sqlalchemy.orm import Session
 
@@ -12,48 +12,39 @@ router = APIRouter()
 
 @router.post("/", response_model=BranchCreate, status_code=status.HTTP_201_CREATED)
 def create_branch(branch: BranchCreate, db: Session = Depends(get_db)):
-    created_branch = branch_create(db, branch)
-    return created_branch
-
+    return branch_create(db, branch)
+    
 @router.get("/{branch_id}", response_model=BranchOut, status_code=status.HTTP_200_OK)
 def get_branch(branch_id: int, db: Session = Depends(get_db)):
-    searched_branch = branch_get(db, branch_id)
-    if not searched_branch:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Branch not found")
-    return searched_branch
+    return branch_get(db, branch_id)
 
 @router.get("/employees/{branch_id}", response_model=List[EmployeeOut], status_code=status.HTTP_200_OK)
 def get_branch_employees(branch_id: int, skip: int = 0, limit: int = 100, db : Session = Depends(get_db)):
-    searched_branch = branch_get(db, branch_id)
-    if not searched_branch:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Branch not found")
-    
     searched_employees = branch_employees_get(db ,branch_id, skip=skip, limit=limit)
+    if not searched_employees:
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
+    
     return searched_employees
 
 @router.get("/", response_model=List[BranchOut])
 def get_branches(skip: int = 0, limit: int = 100, db : Session = Depends(get_db)):
     all_branches = branches_get(db, skip=skip, limit=limit)
+    if not all_branches:
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
     return all_branches
 
 @router.get("/locks/{branch_id}", response_model=List[LockOut], status_code=status.HTTP_200_OK)
 def get_branch_locks(branch_id: int, db: Session = Depends(get_db)):
     searched_locks = branch_locks_get(db, branch_id)
     if not searched_locks:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Branch not found")
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
     return searched_locks
 
 @router.patch("/{branch_id}", response_model=BranchOut)
 def update_branch(branch_id: int, branch: BranchUpdate, db: Session = Depends(get_db)):
-    updated_branch = branch_update(db, branch_id, branch)
-    if not updated_branch:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Branch not found")
-    return updated_branch
-
+    return branch_update(db, branch_id, branch)
+    
 @router.delete("/{branch_id}", response_model=BranchOut)
 def delete_branch(branch_id: int, db: Session = Depends(get_db)):
-    deleted_branch = branch_delete(db, branch_id)
-    if not deleted_branch:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Branch not found")
-    return deleted_branch 
+    return branch_delete(db, branch_id)
     

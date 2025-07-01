@@ -1,11 +1,20 @@
 from sqlalchemy.orm import Session
 from app.schemas.employee import EmployeeUpdate, EmployeeCreate
+from fastapi import status
 from app.crud.role import get_role
+from app.crud.branch import get_branch
+from app.exceptions.customError import CustomError
+from app.utils.error_handler import handle_exception
 
 def get_employee(db: Session, employee_id: int):
     from app.models.employee import Employee
     
-    return db.query(Employee).filter(Employee.id == employee_id).first()
+    searched_employee = db.query(Employee).filter(Employee.id == employee_id).first()
+    
+    if not searched_employee:
+        raise CustomError(status_code=status.HTTP_404_NOT_FOUND, detail="Employee not fond")
+    
+    return searched_employee
 
 def get_all_employees(db: Session,  skip: int = 0, limit: int = 100):
     from app.models.employee import Employee
@@ -15,67 +24,84 @@ def get_all_employees(db: Session,  skip: int = 0, limit: int = 100):
 def get_employee_locks(db: Session, employee_id: int):
     from app.models.lock import Lock
     
+    #Only 4 validation
+    get_employee(db, employee_id)
+    
     return db.query(Lock).filter(Lock.employee_id == employee_id).all()
 
 def create_employee(db: Session, employee: EmployeeCreate):
     from app.models.employee import Employee
     
-    created_employee = Employee(name=employee.name, hourly_wage=employee.hourly_wage, monthly_hours=employee.monthly_hours, branch_id=employee.branch_id)
-    
-    db.add(created_employee)
-    db.commit()
-    db.refresh(created_employee)
-    
-    return created_employee
+    try:
+        #Only 4 validation
+        get_branch(db, employee.branch_id)
+        
+        created_employee = Employee(name=employee.name, hourly_wage=employee.hourly_wage, monthly_hours=employee.monthly_hours, branch_id=employee.branch_id)
+        
+        db.add(created_employee)
+        db.commit()
+        db.refresh(created_employee)
+        
+        return created_employee
+    except Exception as e:
+        db.rollback()
+        handle_exception(e, "Internal error creating employee")
 
 def update_employee(db:Session, employee_id: int, employee: EmployeeUpdate):
-    searched_employee = get_employee(db, employee_id)
-    if not searched_employee:
-        return None
     
-    update_data = employee.model_dump(exclude_unset=True)
-    
-    for key, value in update_data.items():
-        setattr(searched_employee, key, value)
+    try:
+        searched_employee = get_employee(db, employee_id)
         
-    db.commit()
-    db.refresh(searched_employee)
-    return searched_employee
+        update_data = employee.model_dump(exclude_unset=True)
+        
+        #Only 4 validation
+        if "branch_id" in update_data:
+            get_branch(db, update_data["branch_id"])
+        
+        for key, value in update_data.items():
+            setattr(searched_employee, key, value)
+            
+        db.commit()
+        db.refresh(searched_employee)
+        return searched_employee
+    except Exception as e:
+        db.rollback()
+        handle_exception(e, "Internal error updating employee")
 
 def delete_employee(db: Session, employee_id):
-    searched_employee = get_employee(db, employee_id)
+    try:
+        searched_employee = get_employee(db, employee_id)
+        db.delete(searched_employee)
+        db.commit()
+        
+        return searched_employee
+    except Exception as e:
+        db.rollback()   
+        handle_exception(e, "Internal error deleting employee")
     
-    if not searched_employee:
-        return None
-    
-    db.delete(searched_employee)
-    db.commit()
-    
-    return searched_employee
 
 def asign_employee_role(db: Session, employee_id: int, role_id: int):
     
-    searched_employee = get_employee(db, employee_id)
-    
-    searched_role = get_role(db, role_id)
-    
-    if not searched_employee or not searched_role:
-        return None
-    
-    if searched_role in searched_employee.roles:
-        return None
-    
-    searched_employee.roles.append(searched_role)
-    db.commit()
-    db.refresh(searched_employee)
-    
-    return searched_employee, searched_role
+    try:
+        searched_employee = get_employee(db, employee_id)
+        
+        searched_role = get_role(db, role_id)
+        
+        if searched_role in searched_employee.roles:
+            raise CustomError(status_code=status.HTTP_409_CONFLICT, detail="Employee already has that role")
+        
+        searched_employee.roles.append(searched_role)
+        db.commit()
+        db.refresh(searched_employee)
+        
+        return searched_employee, searched_role
+    except Exception as e:
+        db.rollback()
+        handle_exception(e, "Internal error asigning role to employee")
 
 def get_employee_roles(db: Session, employee_id: int):
     searched_employee = get_employee(db, employee_id)
-    
-    if not searched_employee:
-        return None
-    
+
     return searched_employee.roles
+        
     
