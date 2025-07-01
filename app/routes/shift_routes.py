@@ -8,7 +8,7 @@ from app.crud.shift import get_shift as shift_get, get_all_shifts as all_shifts_
 
 router = APIRouter()
 
-@router.get("/{shift_id}", response_model=ShiftOut, status=status.HTTP_200_OK)
+@router.get("/{shift_id}", response_model=ShiftOut, status_code=status.HTTP_200_OK)
 def get_shift(shift_id: int, db: Session = Depends(get_db)):
     searched_shift = shift_get(db, shift_id)
     if not searched_shift:
@@ -27,10 +27,19 @@ def create_shift(shift: ShiftCreate, db: Session = Depends(get_db)):
     if not created_shift:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Something went wrong creating the shift")
     
-    return create_shift
+    return created_shift
 
 @router.patch("/{shift_id}", response_model=ShiftOut)
 def update_shift(shift_id: int, shift: ShiftUpdate, db: Session = Depends(get_db)):
     updated_shift = shift_update(db, shift_id, shift)
     if not updated_shift:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Something went wr")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Something went wrong updating the shift")
+    return updated_shift
+
+@router.delete("/{shift_id}", response_model=ShiftOut, status_code=status.HTTP_200_OK)
+def delete_shift(shift_id: int, db: Session = Depends(get_db)):
+    deleted_shift = shift_delete(db, shift_id)
+    if not deleted_shift:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Shift not found")
+    return deleted_shift
+    
