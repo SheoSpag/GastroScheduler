@@ -1,6 +1,5 @@
-from sqlalchemy import Column, Integer, Time, String
+from sqlalchemy import Column, Integer, Time, String, ForeignKey
 from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declarative_base
 from app.db.db import Base
 
 class Area(Base):
@@ -12,5 +11,9 @@ class Area(Base):
     minimum_staff = Column(Integer, default=1)
     maximum_staff = Column(Integer, nullable=False)
     name = Column(String, nullable=False)
+    
+    branch_id = Column(Integer, ForeignKey("branch.id", ondelete="CASCADE"), nullable=False)
+    branch = relationship("Branch", back_populates="areas")
+
     
     roles = relationship("Role", back_populates="area", cascade="all, delete-orphan")

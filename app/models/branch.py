@@ -14,5 +14,8 @@ class Branch(Base):
     employees = relationship("Employee", back_populates="branch", cascade="all, delete-orphan")
     
     days_settings = relationship("DaySettings", back_populates="branch", cascade="all, delete-orphan")
+    
+    areas = relationship("Area", back_populates="branch", cascade="all, delete-orphan")
+
 
     
