@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, Response, status
 from typing import List
 from sqlalchemy.orm import Session
 
@@ -10,36 +10,25 @@ router = APIRouter()
 
 @router.get("/{shift_id}", response_model=ShiftOut, status_code=status.HTTP_200_OK)
 def get_shift(shift_id: int, db: Session = Depends(get_db)):
-    searched_shift = shift_get(db, shift_id)
-    if not searched_shift:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Shift not found")
-    return searched_shift
+    return shift_get(db, shift_id)
+    
 
 @router.get("/", response_model=List[ShiftOut], status_code=status.HTTP_200_OK)
 def get_all_shifts(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     all_shifts = all_shifts_get(db, skip=skip, limit=limit)
+    if not all_shifts:
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
     return all_shifts
 
 @router.post("/", response_model=ShiftOut, status_code=status.HTTP_201_CREATED)
 def create_shift(shift: ShiftCreate, db: Session = Depends(get_db)):
-    created_shift = shift_create(db, shift)
-    
-    if not created_shift:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Something went wrong creating the shift")
-    
-    return created_shift
+    return shift_create(db, shift)
 
 @router.patch("/{shift_id}", response_model=ShiftOut)
 def update_shift(shift_id: int, shift: ShiftUpdate, db: Session = Depends(get_db)):
-    updated_shift = shift_update(db, shift_id, shift)
-    if not updated_shift:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Something went wrong updating the shift")
-    return updated_shift
+    return shift_update(db, shift_id, shift)
 
 @router.delete("/{shift_id}", response_model=ShiftOut, status_code=status.HTTP_200_OK)
 def delete_shift(shift_id: int, db: Session = Depends(get_db)):
-    deleted_shift = shift_delete(db, shift_id)
-    if not deleted_shift:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Shift not found")
-    return deleted_shift
+    return shift_delete(db, shift_id)
     

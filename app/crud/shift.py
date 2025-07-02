@@ -2,11 +2,18 @@ from sqlalchemy.orm import Session
 from app.schemas.shift import ShiftCreate, ShiftUpdate
 from app.crud.role import get_role
 from app.crud.employee import get_employee
+from app.exceptions.customError import CustomError
+from fastapi import status
+
+from app.utils.error_handler import handle_exception
 
 def get_shift(db: Session, shift_id:int):
     from app.models.shift import Shift
+    searched_shift = db.query(Shift).filter(Shift.id == shift_id).first()
     
-    return db.query(Shift).filter(Shift.id == shift_id).first()
+    if not searched_shift:
+        raise CustomError(status_code=status.HTTP_404_NOT_FOUND, detail="Shift not found")
+    return searched_shift
 
 def get_all_shifts(db:Session, skip: int = 0, limit: int = 100):
     from app.models.shift import Shift
@@ -16,75 +23,77 @@ def get_all_shifts(db:Session, skip: int = 0, limit: int = 100):
 def create_shift(db: Session, shift: ShiftCreate):
     from app.models.shift import Shift
     
-    searched_employee = get_employee(db, shift.employee_id)
-    
-    if not searched_employee:
-        return None
-    
-    searched_role = get_role(db, shift.role_id)
-    
-    if not searched_employee:
-        return None
-    
-    if searched_role not in searched_employee.roles:
-        return None
-    
-    existing_shift = db.query(Shift).filter(Shift.employee_id == shift.employee_id, Shift.date == shift.date).first()
-    
-    if existing_shift:
-        return None
-    
-    created_shift = Shift(start_date_time= shift.start_date_time, end_date_time= shift.end_date_time, date= shift.date, employee_id= shift.employee_id, role_id= shift.role_id)
-    
-    db.add(created_shift)
-    db.commit()
-    db.refresh(created_shift)
-    
-    return created_shift
+    try:
+        searched_employee = get_employee(db, shift.employee_id)
+        
+        searched_role = get_role(db, shift.role_id)
+        
+        if searched_role not in searched_employee.roles:
+            raise CustomError(status_code=status.HTTP_409_CONFLICT, detail="The employee does not have the rol assigned")
+        
+        existing_shift = db.query(Shift).filter(Shift.employee_id == shift.employee_id, Shift.date == shift.date).first()
+        
+        if existing_shift:
+            raise CustomError(status_code=status.HTTP_409_CONFLICT, detail="The employee already has a shift for that day")
+        
+        created_shift = Shift(start_date_time= shift.start_date_time, end_date_time= shift.end_date_time, date= shift.date, employee_id= shift.employee_id, role_id= shift.role_id)
+        
+        db.add(created_shift)
+        db.commit()
+        db.refresh(created_shift)
+        
+        return created_shift
+    except Exception as e:
+        db.rollback()
+        handle_exception(e, "Internal error creating the shift")
 
 def update_shift(db: Session, shift_id: int, shift: ShiftUpdate):
-    
-    searched_shift = get_shift(db, shift_id)
-    
-    if not searched_shift:
-        return None
-    
-    updated_data = shift.model_dump(exclude_unset=True)
-    
-    employee = None
-    role = None    
-    
-    if "employee_id" in updated_data:
-        employee = get_employee(db, updated_data["employee_id"])
-        if not employee:
-            return None
+    try:
+        searched_shift = get_shift(db, shift_id)
+
+        updated_data = shift.model_dump(exclude_unset=True)
         
-    if "role_id" in updated_data:
-        role = get_role(db, updated_data["role_id"])
-        if not role:
-            return None
+        employee = None
+        role = None    
         
-    if employee and role:
-        if role not in employee.roles:
-            return None 
+        if "employee_id" in updated_data:
+            employee = get_employee(db, updated_data["employee_id"])
+            if not employee:
+                raise CustomError(status_code=status.HTTP_404_NOT_FOUND, detail="Employee not found")
+            
+        if "role_id" in updated_data:
+            role = get_role(db, updated_data["role_id"])
+            if not role:
+                raise CustomError(status_code=status.HTTP_404_NOT_FOUND, detail="Role not found")
+            
+        if role and not employee:
+            base_employee = get_employee(db, searched_shift.employee_id)
+            if role not in base_employee.roles:
+                raise CustomError(status_code=status.HTTP_409_CONFLICT, detail="Employee does not have this role assigned")  
+            
+        if employee and role:
+            if role not in employee.roles:
+                raise CustomError(status_code=status.HTTP_409_CONFLICT, detail="Employee does not have this role assigned")  
         
+        for key, value in updated_data.items():
+            setattr(searched_shift, key, value)
+            
+        db.commit()
+        db.refresh(searched_shift)
         
-    
-    for key, value in updated_data.items():
-        setattr(searched_shift, key, value)
-        
-    db.commit()
-    db.refresh(searched_shift)
-    
-    return searched_shift
+        return searched_shift
+    except Exception as e:
+        db.rollback()
+        handle_exception(e, "Internal error updating the branch")
 
 def delete_shift(db: Session, shift_id: int):
-    searched_shift = get_shift(db, shift_id)
-    
-    if not searched_shift:
-        return None
-    
-    db.delete(searched_shift)
-    db.commit()
-    
-    return searched_shift
+    try:
+        searched_shift = get_shift(db, shift_id)
+        
+        db.delete(searched_shift)
+        db.commit()
+        
+        return searched_shift
+    except Exception as e:
+        db.rollback()
+        handle_exception(e, "Internal error deleting the shift")
