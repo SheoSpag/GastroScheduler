@@ -8,6 +8,7 @@ class AreaBase(BaseModel):
     minimum_staff: int
     maximum_staff: int
     name: str
+    branch_id: int
     
 class AreaCreate(AreaBase):
     pass 

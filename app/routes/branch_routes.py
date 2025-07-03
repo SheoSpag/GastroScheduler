@@ -6,7 +6,8 @@ from app.db.db import get_db
 from app.schemas.branch import BranchCreate, BranchOut, BranchUpdate
 from app.schemas.employee import EmployeeOut
 from app.schemas.lock import LockOut
-from app.crud.branch import get_branch as branch_get, get_branches as branches_get, create_branch as branch_create, update_branch as branch_update, delete_branch as branch_delete, get_branch_employees as branch_employees_get, get_branch_locks as branch_locks_get
+from app.schemas.area import AreaOut
+from app.crud.branch import get_branch as branch_get, get_branches as branches_get, create_branch as branch_create, update_branch as branch_update, delete_branch as branch_delete, get_branch_employees as branch_employees_get, get_branch_locks as branch_locks_get, get_branch_areas as branch_areas_get
 
 router = APIRouter()
 
@@ -39,6 +40,10 @@ def get_branch_locks(branch_id: int, db: Session = Depends(get_db)):
     if not searched_locks:
         return Response(status_code=status.HTTP_204_NO_CONTENT)
     return searched_locks
+
+@router.get("/{branch_id}/areas", response_model=List[AreaOut], status_code=status.HTTP_200_OK)
+def get_branch_areas(branch_id: int, db: Session = Depends(get_db)):
+    return
 
 @router.patch("/{branch_id}", response_model=BranchOut)
 def update_branch(branch_id: int, branch: BranchUpdate, db: Session = Depends(get_db)):

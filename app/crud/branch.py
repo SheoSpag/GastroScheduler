@@ -27,7 +27,7 @@ def get_branch_employees(db: Session, branch_id: int,  skip: int = 0, limit: int
     
     return db.query(Employee).filter(Employee.branch_id == branch_id).offset(skip).limit(limit).all()
 
-def get_branch_locks(db: Session, branch_id):
+def get_branch_locks(db: Session, branch_id: int):
     from app.models.lock import Lock
     from app.models.employee import Employee
     
@@ -35,6 +35,13 @@ def get_branch_locks(db: Session, branch_id):
     get_branch(db, branch_id)
     
     return db.query(Lock).join(Employee).filter(Employee.branch_id == branch_id).all()
+
+def get_branch_areas(db: Session, branch_id: int):
+    from app.models.area import Area
+    
+    #Just 4 validation
+    get_branch(db, branch_id)
+    return db.query(Area).filter(Area.branch_id == branch_id).all()
 
 def create_branch(db: Session, branch: BranchCreate):
     from app.models.branch import Branch
