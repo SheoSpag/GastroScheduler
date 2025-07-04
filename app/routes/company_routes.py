@@ -28,7 +28,7 @@ def get_companies(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
 def update_company(company_id: int, company: CompanyUpdate, db: Session = Depends(get_db)):
     return company_update(db, company_id, company)
 
-@router.delete("/{company_id}", response_model=CompanyOut)
+@router.delete("/{company_id}", response_model=CompanyOut, status_code=status.HTTP_200_OK)
 def delete_company(company_id: int, db: Session = Depends(get_db)):
     return company_delete(db, company_id)
     

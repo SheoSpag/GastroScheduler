@@ -11,7 +11,7 @@ from app.crud.branch import get_branch as branch_get, get_branches as branches_g
 
 router = APIRouter()
 
-@router.post("/", response_model=BranchCreate, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=BranchOut, status_code=status.HTTP_201_CREATED)
 def create_branch(branch: BranchCreate, db: Session = Depends(get_db)):
     return branch_create(db, branch)
     

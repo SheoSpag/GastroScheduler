@@ -7,6 +7,7 @@ def handle_exception(e: Exception, message: str = "Internal server error"):
     Otherwise, a new CustomError with HTTP 500 status is raised using the provided message.
     This helps maintain a clean and centralized error-handling strategy.
     """
+    print(f"ERROR REAL: {e}")
     if isinstance(e, CustomError):
         raise e
     raise CustomError(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=message)
