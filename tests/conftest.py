@@ -42,3 +42,13 @@ def client(db):
     client = TestClient(app)
     yield client
     app.dependency_overrides.clear()
+    
+import pytest
+from app.db.db import Base
+
+@pytest.fixture(autouse=True)
+def clean_db(db):
+    for table in reversed(Base.metadata.sorted_tables):
+        db.execute(table.delete())
+    db.commit()
+

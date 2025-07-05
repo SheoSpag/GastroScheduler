@@ -1,8 +1,6 @@
 from app.models.company import Company
 
 def test_create_company(client, db):
-    db.query(Company).delete()
-    db.commit()
     data = {"name": "Test Company"}
     response = client.post("/company/", json=data)
     assert response.status_code == 201
@@ -22,10 +20,7 @@ def test_get_companies(client, db):
     assert isinstance(companies, list)
     assert len(companies) == 2
     
-def test_get_empty_companies_list(client, db):
-    db.query(Company).delete()
-    db.commit()
-    
+def test_get_empty_companies_list(client, db):    
     response = client.get("/company/")
     
     assert response.status_code == 204
@@ -44,10 +39,7 @@ def test_get_one_company(client, db):
     assert companies["id"] == 1
     assert companies["name"] == "Test Company"
     
-def test_company_not_found(client, db):
-    db.query(Company).delete()
-    db.commit()
-    
+def test_company_not_found(client, db):    
     response = client.get("/company/1")
     
     assert response.status_code == 404
@@ -67,10 +59,7 @@ def test_update_company(client, db):
     assert company["id"] == 1
     assert company["name"] == "Test Company 1"
     
-def test_fail_delete_company(client, db):
-    db.query(Company).delete()
-    db.commit()
-    
+def test_fail_delete_company(client, db):    
     response = client.delete("/comapny/1")
     
     assert response.status_code == 404

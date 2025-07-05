@@ -45,7 +45,7 @@ def get_branch_locks(branch_id: int, db: Session = Depends(get_db)):
 def get_branch_areas(branch_id: int, db: Session = Depends(get_db)):
     return
 
-@router.patch("/{branch_id}", response_model=BranchOut)
+@router.patch("/{branch_id}", response_model=BranchOut, status_code=status.HTTP_200_OK)
 def update_branch(branch_id: int, branch: BranchUpdate, db: Session = Depends(get_db)):
     return branch_update(db, branch_id, branch)
     
