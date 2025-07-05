@@ -19,7 +19,7 @@ def create_branch(branch: BranchCreate, db: Session = Depends(get_db)):
 def get_branch(branch_id: int, db: Session = Depends(get_db)):
     return branch_get(db, branch_id)
 
-@router.get("/employees/{branch_id}", response_model=List[EmployeeOut], status_code=status.HTTP_200_OK)
+@router.get("/{branch_id}/employees", response_model=List[EmployeeOut], status_code=status.HTTP_200_OK)
 def get_branch_employees(branch_id: int, skip: int = 0, limit: int = 100, db : Session = Depends(get_db)):
     searched_employees = branch_employees_get(db ,branch_id, skip=skip, limit=limit)
     if not searched_employees:
@@ -34,7 +34,7 @@ def get_branches(skip: int = 0, limit: int = 100, db : Session = Depends(get_db)
         return Response(status_code=status.HTTP_204_NO_CONTENT)
     return all_branches
 
-@router.get("/locks/{branch_id}", response_model=List[LockOut], status_code=status.HTTP_200_OK)
+@router.get("/{branch_id}/locks", response_model=List[LockOut], status_code=status.HTTP_200_OK)
 def get_branch_locks(branch_id: int, db: Session = Depends(get_db)):
     searched_locks = branch_locks_get(db, branch_id)
     if not searched_locks:

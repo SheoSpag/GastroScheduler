@@ -1,6 +1,4 @@
-from app.models.branch import Branch
 from app.models.day_settings import DaySettings
-from app.models.company import Company
 
 def test_create_branch(client, db):
     company_data = {"name": "Test Company"}
@@ -119,6 +117,12 @@ def test_get_all_branches(client):
     branches = response.json()
     
     assert len(branches) == 2
+    
+    #Branch areas
+    
+    #Branch locks
+
+    #Branch employees
     
     
     

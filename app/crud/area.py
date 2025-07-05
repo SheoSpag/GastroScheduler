@@ -29,7 +29,7 @@ def create_area(db: Session, area: AreaCreate):
             raise CustomError(status_code=status.HTTP_404_NOT_FOUND, detail="Branch not found")
 
 
-        created_area = Area(opening_time= area.opening_time, closing_time= area.closing_time, minimum_staff= area.minimum_staff, maximum_staff=area.maximum_staff, name=area.name, branch_id_=area.branch_id)
+        created_area = Area(opening_time= area.opening_time, closing_time= area.closing_time, minimum_staff= area.minimum_staff, maximum_staff=area.maximum_staff, name=area.name, branch_id=area.branch_id)
         
         db.add(created_area)
         db.commit()
