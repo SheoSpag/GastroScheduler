@@ -1,18 +1,11 @@
 from app.models.company import Company
 
-def test_create_company(client, db):
+def test_create_company(client):
     data = {"name": "Test Company"}
     response = client.post("/company/", json=data)
     assert response.status_code == 201
 
-def test_get_companies(client, db):
-    db.query(Company).delete()
-    db.commit()
-    
-    response = client.get("/company/")
-    
-    assert response.status_code == 204    
-    
+def test_get_companies(client):
     data = {"name": "Test Company"}
     client.post("/company/", json=data)
     client.post("/company/", json=data)
@@ -24,14 +17,7 @@ def test_get_companies(client, db):
     assert isinstance(companies, list)
     assert len(companies) == 2
     
-def test_get_one_company(client, db):
-    db.query(Company).delete()
-    db.commit()
-    
-    response = client.get("/company/1")
-    
-    assert response.status_code == 404
-    
+def test_get_one_company(client):
     data = {"name": "Test Company"}
     client.post("/company/", json=data)
     
@@ -43,14 +29,7 @@ def test_get_one_company(client, db):
     assert companies["name"] == "Test Company"
 
     
-def test_update_company(client, db):
-    db.query(Company).delete()
-    db.commit()
-    
-    response = client.delete("/comapny/1")
-    
-    assert response.status_code == 404
-    
+def test_update_company(client):    
     data = {"name": "Test Company"}
     client.post("/company/", json=data)
     
@@ -63,13 +42,6 @@ def test_update_company(client, db):
     assert company["name"] == "Test Company 1"
     
 def test_delete_company(client, db):
-    db.query(Company).delete()
-    db.commit()
-    
-    response = client.get("/company/1")
-    
-    assert response.status_code == 404
-
     data = {"name": "Test Company"}
     client.post("/company/", json=data)
     

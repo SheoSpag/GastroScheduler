@@ -17,6 +17,28 @@ def test_create_area(client):
     branch_data = {"address": "Fake Street 123", "company_id": 1}
     client.post("/branch/", json=branch_data)
     
+    area_data = {
+        "opening_time": "00:00:00",
+        "closing_time": "00:00:00",
+        "minimum_staff": 5,
+        "maximum_staff": 1,
+        "name": "Bar",
+        "branch_id": 1
+    }    
+    
+    
+    response = client.post("/area/", json=area_data)
+    
+    assert response.status_code == 422
+    
+    area_data = {
+        "opening_time": "00:00:00",
+        "closing_time": "00:00:00",
+        "minimum_staff": 1,
+        "maximum_staff": 5,
+        "name": "Bar",
+        "branch_id": 1
+    }    
     
     response = client.post("/area/", json=area_data)
 

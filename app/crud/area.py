@@ -27,6 +27,9 @@ def create_area(db: Session, area: AreaCreate):
         
         if not searched_branch:
             raise CustomError(status_code=status.HTTP_404_NOT_FOUND, detail="Branch not found")
+        
+        if area.minimum_staff > area.maximum_staff:
+            raise CustomError(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Minimum staff cannot be greater than maximum staff")
 
         created_area = Area(opening_time= area.opening_time, closing_time= area.closing_time, minimum_staff= area.minimum_staff, maximum_staff=area.maximum_staff, name=area.name, branch_id=area.branch_id)
         
@@ -50,7 +53,7 @@ def update_area(db: Session, area_id: int, area: AreaUpdate):
         for key, value in update_data.items():
             setattr(searched_area, key, value)
             
-        if "minimum_staff" in update_data and "minimum_staff" == 0:
+        if "minimum_staff" in update_data and  update_data["minimum_staff"] == 0:
             raise CustomError(status_code=status.HTTP_400_BAD_REQUEST, detail="Minimum staff must be greater than zero")
             
         db.commit()
