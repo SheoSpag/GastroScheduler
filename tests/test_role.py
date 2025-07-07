@@ -78,7 +78,7 @@ def test_get_role(client):
     
     assert response.status_code == 200
     
-def test_get_all_areas(client):
+def test_get_all_roles(client):
     company_data = {"name": "Test Company"}
     client.post("/company/", json=company_data)
     branch_data = {"address": "Fake Street 123", "company_id": 1}

@@ -45,9 +45,6 @@ def update_area(db: Session, area_id: int, area: AreaUpdate):
     try:
         searched_area = get_area(db, area_id)
         
-        if not searched_area:
-            raise CustomError(status_code=status.HTTP_404_NOT_FOUND, detail="Area not found")
-        
         update_data = area.model_dump(exclude_unset=True)
         
         for key, value in update_data.items():
