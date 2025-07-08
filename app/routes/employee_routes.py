@@ -24,7 +24,7 @@ def get_all_employees(skip: int = 0, limit: int = 100, db: Session = Depends(get
     
     return all_employees
 
-@router.get("/lock/{employee_id}", response_model=List[LockOut], status_code=status.HTTP_200_OK)
+@router.get("/{employee_id}/lock", response_model=List[LockOut], status_code=status.HTTP_200_OK)
 def get_employee_locks(employee_id: int, db: Session = Depends(get_db)):
     searched_locks = employee_locks_get(db, employee_id)
     

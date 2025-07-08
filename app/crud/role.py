@@ -71,4 +71,13 @@ def delete_role(db: Session, role_id: int):
         db.rollback()
         handle_exception(e, "Internal error deleting the role")
 
+def get_role_branch_id(db: Session, role_id: int):
+    try:
+        #Just 4 validation
+        searched_role = get_role(db, role_id)
         
+        return searched_role.area.branch.id
+    except Exception as e:
+        db.rollback()
+        handle_exception(e, "Internal error deleting the role")
+    

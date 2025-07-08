@@ -101,4 +101,12 @@ def delete_branch(db: Session, branch_id: int):
         db.rollback()
         handle_exception(e, "Internal error deleting the company")
     
+def get_branch_company_id(db: Session, branch_id: int):
+    try:
+        searched_branch = get_branch(db, branch_id)
+        
+        return searched_branch.company_id
+    except Exception as e:
+        db.rollback()
+        handle_exception(e, "Internal error deleting the company")
     

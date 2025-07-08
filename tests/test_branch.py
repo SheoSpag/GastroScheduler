@@ -109,11 +109,79 @@ def test_get_all_branches(client):
     
     assert len(branches) == 2
     
-    #Branch areas
+def test_get_branch_areas(client):
+    company_data = {"name": "Test Company"}
+    client.post("/company/", json=company_data)
+    branch_data = {"address": "Fake Street 123", "company_id": 1}
+    response = client.post("/branch/", json=branch_data)
     
-    #Branch locks
+    assert response.status_code == 201
+     
+    response = client.get("/branch/1/areas")
+    
+    assert response.status_code == 204
+    
+    area_data = {"name": "Test Area", "branch_id": 1, "opening_time": "00:00:00", "closing_time": "00:00:00", "minimum_staff": 1, "maximum_staff": 10}
+    area_data2 = {"name": "Test Area2", "branch_id": 1, "opening_time": "00:00:00", "closing_time": "00:00:00", "minimum_staff": 1, "maximum_staff": 10}
+    response = client.post("/area/", json=area_data)
+    response = client.post("/area/", json=area_data2)
+    
+    response = client.get("/branch/1/areas")
+    
+    assert response.status_code == 200
+    
+    branch_areas = response.json()
+    
+    assert len(branch_areas) == 2
+       
+    
+def test_get_branch_employees(client):
+    company_data = {"name": "Test Company"}
+    client.post("/company/", json=company_data)
+    branch_data = {"address": "Fake Street 123", "company_id": 1}
+    client.post("/branch/", json=branch_data)
+    
+    response = client.get("/branch/1/employees")
+    
+    assert response.status_code == 204
+    
+    employee_data = {"name": "Test Employee", "hourly_wage": 10.0, "monthly_hours": 120, "branch_id": 1}
+    client.post("/employee/", json=employee_data)
+    client.post("/employee/", json=employee_data)
+    
+    response = client.get("/branch/1/employees")
+    
+    assert response.status_code == 200
+    assert len(response.json()) == 2
+    
+def test_get_branch_locks(client):
+    company_data = {"name": "Test Company"}
+    client.post("/company/", json=company_data)
+    branch_data = {"address": "Fake Street 123", "company_id": 1}
+    client.post("/branch/", json=branch_data)
+    
+    employee_data = {"name": "Test Employee", "hourly_wage": 10.0, "monthly_hours": 120, "branch_id": 1}
+    employee_data2 = {"name": "Test Employee2", "hourly_wage": 10.0, "monthly_hours": 120, "branch_id": 1}
+    client.post("/employee/", json=employee_data)
+    client.post("/employee/", json=employee_data2)
+    
+    lock_data = {"locked_date": "2025-12-15", "employee_id": 1 }
+    lock_data2 = {"locked_date": "2025-12-15", "employee_id": 2 }
+    
+    client.post("/lock/", json=lock_data)
+    client.post("/lock/", json=lock_data2)
+    
+    response = client.get("/branch/1/locks")
+    
+    assert response.status_code == 200
+    
+    branch_locks = response.json()
+    
+    assert len(branch_locks) == 2
 
-    #Branch employees
+    
+    
+    
     
     
     

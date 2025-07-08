@@ -13,7 +13,7 @@ router = APIRouter()
 
 router.include_router(company_router, prefix="/company", tags=["companies"])
 router.include_router(branch_router, prefix="/branch", tags=["branches"])
-router.include_router(day_settings_router, prefix="/settings", tags=["day_settings"])
+router.include_router(day_settings_router, prefix="/branch/{branch_id}/settings", tags=["day_settings"])
 router.include_router(employee_router, prefix="/employee", tags=["employees"])
 router.include_router(lock_router, prefix="/lock", tags=["locks"])
 router.include_router(area_router, prefix="/area", tags=["areas"])

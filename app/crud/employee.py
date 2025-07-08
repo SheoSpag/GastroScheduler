@@ -5,6 +5,8 @@ from app.crud.role import get_role
 from app.crud.branch import get_branch
 from app.exceptions.customError import CustomError
 from app.utils.error_handler import handle_exception
+from app.crud.branch import get_branch_company_id
+from app.crud.role import get_role_branch_id
 
 def get_employee(db: Session, employee_id: int):
     from app.models.employee import Employee
@@ -56,7 +58,9 @@ def update_employee(db:Session, employee_id: int, employee: EmployeeUpdate):
         
         #Only 4 validation
         if "branch_id" in update_data:
-            get_branch(db, update_data["branch_id"])
+            company_id = get_branch_company_id(db, update_data["branch_id"])
+            if company_id != searched_employee.branch.company_id:
+                raise CustomError(status_code=status.HTTP_409_CONFLICT, detail="Branch change rejected: cross-company assignment is not allowed.")
         
         for key, value in update_data.items():
             setattr(searched_employee, key, value)
@@ -89,6 +93,9 @@ def asign_employee_role(db: Session, employee_id: int, role_id: int):
         
         if searched_role in searched_employee.roles:
             raise CustomError(status_code=status.HTTP_409_CONFLICT, detail="Employee already has that role")
+        
+        if searched_role.area.branch_id != searched_employee.branch_id:
+            raise CustomError(status_code=status.HTTP_409_CONFLICT, detail="The role must belong to the same branch as the employee")
         
         searched_employee.roles.append(searched_role)
         db.commit()
