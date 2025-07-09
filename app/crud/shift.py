@@ -69,14 +69,10 @@ def update_shift(db: Session, shift_id: int, shift: ShiftUpdate):
             if not role:
                 raise CustomError(status_code=status.HTTP_404_NOT_FOUND, detail="Role not found")
             
-        if role and not employee:
-            base_employee = get_employee(db, searched_shift.employee_id)
-            if role not in base_employee.roles:
-                raise CustomError(status_code=status.HTTP_409_CONFLICT, detail="Employee does not have this role assigned")  
-            
-        if employee and role:
-            if role not in employee.roles:
-                raise CustomError(status_code=status.HTTP_409_CONFLICT, detail="Employee does not have this role assigned")  
+        final_employee = employee or get_employee(db, searched_shift.employee_id)
+        if role and role not in final_employee.roles:
+            raise CustomError(status_code=409, detail="Employee does not have this role assigned")
+
         
         for key, value in updated_data.items():
             setattr(searched_shift, key, value)
