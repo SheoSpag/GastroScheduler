@@ -36,6 +36,9 @@ def create_shift(db: Session, shift: ShiftCreate):
         if existing_shift:
             raise CustomError(status_code=status.HTTP_409_CONFLICT, detail="The employee already has a shift for that day")
         
+        if shift.start_date_time > shift.end_date_time:
+            raise CustomError(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Shift end time must be after start time")
+        
         created_shift = Shift(start_date_time= shift.start_date_time, end_date_time= shift.end_date_time, date= shift.date, employee_id= shift.employee_id, role_id= shift.role_id)
         
         db.add(created_shift)
