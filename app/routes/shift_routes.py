@@ -4,9 +4,18 @@ from sqlalchemy.orm import Session
 
 from app.db.db import get_db
 from app.schemas.shift import ShiftCreate, ShiftOut, ShiftUpdate
-from app.crud.shift import get_shift as shift_get, get_all_shifts as all_shifts_get, create_shift as shift_create, delete_shift as shift_delete, update_shift as shift_update
+from app.crud.shift import get_shift as shift_get, get_all_shifts as all_shifts_get, create_shift as shift_create, delete_shift as shift_delete, update_shift as shift_update, get_employee_shifts_by_month_number as  employee_shifts_by_month_number_get
+
 
 router = APIRouter()
+
+@router.get("/month/{month_number}/employee/{employee_id}", response_model=List[ShiftOut], status_code=status.HTTP_200_OK)
+def get_actual_month_shifts(month_number: int, employee_id: int, db: Session = Depends(get_db)):
+    all_shifts = employee_shifts_by_month_number_get(db, month_number, employee_id)
+    if not all_shifts:
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
+    return all_shifts
+
 
 @router.get("/{shift_id}", response_model=ShiftOut, status_code=status.HTTP_200_OK)
 def get_shift(shift_id: int, db: Session = Depends(get_db)):
@@ -19,6 +28,7 @@ def get_all_shifts(skip: int = 0, limit: int = 100, db: Session = Depends(get_db
     if not all_shifts:
         return Response(status_code=status.HTTP_204_NO_CONTENT)
     return all_shifts
+
 
 @router.post("/", response_model=ShiftOut, status_code=status.HTTP_201_CREATED)
 def create_shift(shift: ShiftCreate, db: Session = Depends(get_db)):

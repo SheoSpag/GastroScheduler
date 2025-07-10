@@ -183,4 +183,43 @@ def test_get_all_shifts(client):
     
     assert len(shifts) == 2
 
+def test_get_actual_month_shifts(client):
+    company_data = {"name": "Test Company"}
+    client.post("/company/", json=company_data)
+    branch_data = {"address": "Fake Street 123", "company_id": 1}
+    client.post("/branch/", json=branch_data)
+    area_data = {"opening_time": "00:00:00","closing_time": "00:00:00","minimum_staff": 1,"maximum_staff": 5,"name": "Bar","branch_id": 1}    
+    client.post("/area/", json=area_data)
+    role_data = {"name": "Bar", "area_id": 1 }
+    client.post("/role/", json=role_data)
+    employee_data = {"name": "Test Employee", "hourly_wage": 10.0, "monthly_hours": 120, "branch_id": 1}
+    client.post("/employee/", json=employee_data)  
+    client.post("/employee/1/role/1")
+        
+    shift_data = {"start_date_time": "2025-07-09T14:00:00", "end_date_time": "2025-07-09T20:00:00", "date": "2025-07-09", "role_id": 1, "employee_id": 1}
+
+    client.post("/shift/", json=shift_data)
+
+    shift_data = {"start_date_time": "2025-07-10T14:00:00", "end_date_time": "2025-07-10T20:00:00", "date": "2025-07-10", "role_id": 1, "employee_id": 1}
+
+    client.post("/shift/", json=shift_data)
+
+    shift_data = {"start_date_time": "2025-08-10T14:00:00", "end_date_time": "2025-08-10T20:00:00", "date": "2025-08-10", "role_id": 1, "employee_id": 1}
+
+    client.post("/shift/", json=shift_data)
+
+    result = client.get("/shift/month/7/employee/1")
     
+    assert result.status_code == 200
+    
+    shifts = result.json()
+    
+    assert len(shifts) == 2
+    
+    result = client.get("/shift/month/8/employee/1")
+    
+    assert result.status_code == 200
+    
+    shifts = result.json()
+    
+    assert len(shifts) == 1
