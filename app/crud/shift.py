@@ -5,7 +5,7 @@ from app.crud.role import get_role
 from app.crud.employee import get_employee
 from app.exceptions.customError import CustomError
 from fastapi import status
-from datetime import date
+from datetime import date, timedelta
 
 from app.utils.error_handler import handle_exception
 
@@ -22,11 +22,10 @@ def get_all_shifts(db:Session, skip: int = 0, limit: int = 100):
     
     return db.query(Shift).offset(skip).limit(limit).all()
 
-def get_employee_shifts_by_month_number(db: Session, month_number: int, employee_id: int):
+def get_employee_shifts_by_month_number(db: Session, month_number: int, year_number: int, employee_id: int):
     from app.models.shift import Shift
 
-    today = date.today()
-    return db.query(Shift).filter(extract('year', Shift.date) == today.year, extract('month', Shift.date) == month_number, Shift.employee_id == employee_id).all()
+    return db.query(Shift).filter(extract('year', Shift.date) == year_number, extract('month', Shift.date) == month_number, Shift.employee_id == employee_id).all()
 
 def create_shift(db: Session, shift: ShiftCreate):
     from app.models.shift import Shift

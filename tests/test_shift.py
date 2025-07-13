@@ -183,7 +183,7 @@ def test_get_all_shifts(client):
     
     assert len(shifts) == 2
 
-def test_get_actual_month_shifts(client):
+def test_get_employee_shifts_by_next_week_monday_month(client):
     company_data = {"name": "Test Company"}
     client.post("/company/", json=company_data)
     branch_data = {"address": "Fake Street 123", "company_id": 1}
@@ -208,7 +208,7 @@ def test_get_actual_month_shifts(client):
 
     client.post("/shift/", json=shift_data)
 
-    result = client.get("/shift/month/7/employee/1")
+    result = client.get("/shift/month/7/year/2025/employee/1")
     
     assert result.status_code == 200
     
@@ -216,7 +216,7 @@ def test_get_actual_month_shifts(client):
     
     assert len(shifts) == 2
     
-    result = client.get("/shift/month/8/employee/1")
+    result = client.get("/shift/month/8/year/2025/employee/1")
     
     assert result.status_code == 200
     

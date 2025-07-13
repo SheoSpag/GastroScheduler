@@ -4,14 +4,14 @@ from sqlalchemy.orm import Session
 
 from app.db.db import get_db
 from app.schemas.shift import ShiftCreate, ShiftOut, ShiftUpdate
-from app.crud.shift import get_shift as shift_get, get_all_shifts as all_shifts_get, create_shift as shift_create, delete_shift as shift_delete, update_shift as shift_update, get_employee_shifts_by_month_number as  employee_shifts_by_month_number_get
+from app.crud.shift import get_shift as shift_get, get_all_shifts as all_shifts_get, create_shift as shift_create, delete_shift as shift_delete, update_shift as shift_update, get_employee_shifts_by_month_number as  shifts_by_month_number_get
 
 
 router = APIRouter()
 
-@router.get("/month/{month_number}/employee/{employee_id}", response_model=List[ShiftOut], status_code=status.HTTP_200_OK)
-def get_actual_month_shifts(month_number: int, employee_id: int, db: Session = Depends(get_db)):
-    all_shifts = employee_shifts_by_month_number_get(db, month_number, employee_id)
+@router.get("/month/{month_number}/year/{year_number}/employee/{employee_id}", response_model=List[ShiftOut], status_code=status.HTTP_200_OK)
+def get_employee_shifts_by_month_number(month_number: int, year_number: int, employee_id:  int, db: Session = Depends(get_db)):
+    all_shifts = shifts_by_month_number_get(db, month_number, year_number, employee_id)
     if not all_shifts:
         return Response(status_code=status.HTTP_204_NO_CONTENT)
     return all_shifts
