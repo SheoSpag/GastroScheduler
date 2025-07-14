@@ -1,40 +1,50 @@
 from datetime import timedelta
 from datetime import date, timedelta
 from sqlalchemy.orm import Session
+from fastapi import status
 from app.crud.branch import get_branch
-from app.crud.employee import get_all_employees
 from services.ai_client import generate_shifts
-from itertools import chain
+from app.crud.branch import get_branch_areas, get_branch_employees
+from app.exceptions.customError import CustomError
+from app.utils.error_handler import handle_exception
 import json
 
 
 
 def build_weekly_shifts(branch_id: int, db: Session):
-    
-    branch = get_branch(db, branch_id)
-    employees = get_all_employees(db)
+    try:
+        branch = get_branch(db, branch_id)
+        
+        #Only 4 validation
+        get_branch_employees(db, branch_id)
+        get_branch_areas(db, branch_id)
 
-    shifts = []
+        ai_response = generate_shifts(generate_weekly_shift_prompt_for_area(branch))
+        shifts = json.loads(ai_response)
+        
+        return shifts
+    except Exception as e:
+        if isinstance(e, json.JSONDecodeError):
+            raise CustomError(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="La IA devolvió una respuesta inválida")
+                              
+        handle_exception(e, "Interal error generating the shifts")
+
     
-    for area in branch.areas:
-        shifts.append(json.loads(generate_shifts(generate_weekly_shift_prompt_for_area(branch, area, employees))))
-    
-    
-    return list(chain.from_iterable(shifts))
-    
-def generate_weekly_shift_prompt_for_area(branch, area, employees):
+def generate_weekly_shift_prompt_for_area(branch):
     start_date = get_next_monday()
-    prompt = f"Generá los turnos semanales para el área **{area.name}** de la sucursal ubicada en **{branch.address}**, desde el lunes {start_date} hasta el domingo {start_date + timedelta(days=6)}.\n\n"
+    prompt = f"Generá todos los turnos semanales para la sucursal ubicada en **{branch.address}**, desde el lunes {start_date} hasta el domingo {start_date + timedelta(days=6)}.\n\n"
 
-    prompt += "### Roles requeridos:\n"
-    prompt += "\n".join(f"- {role.name}" for role in area.roles) + "\n\n"
+    for area in branch.areas:
+        prompt += f"### Area: {area.name}\n"
 
-    prompt += "### Empleados y bloqueos:\n"
-    for emp in employees:
-        bloqueos = ", ".join(getattr(emp, "blocks", [])) if hasattr(emp, "blocks") else "sin bloqueos"
-        prompt += f"- {emp.name}: {bloqueos}\n"
-
-
+        prompt += f"### Roles requeridos para el area {area.name}:\n"
+        for role in area.roles:
+            prompt += f"- {role.name}\n\n"
+            prompt += "### Empleados habilitados para dicho rol y sus bloqueos:\n"
+            for emp in role.employees:
+                bloqueos = ", ".join(getattr(emp, "blocks", [])) if hasattr(emp, "blocks") else "sin bloqueos"
+                prompt += f"- {emp.name}: bloqueos: {bloqueos}\n"
+    
     prompt += "\n---\n### Consideraciones:\n"
 
     prompt += """
@@ -66,6 +76,8 @@ def generate_weekly_shift_prompt_for_area(branch, area, employees):
 
 
     """
+    
+    print(prompt)
     
     return prompt
 

@@ -21,10 +21,6 @@ def get_areas(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
 def get_area(area_id: int, db: Session = Depends(get_db)):
     return area_get(db, area_id)
 
-@router.get("/{area_id}/roles", response_model=AreaOut, status_code=status.HTTP_200_OK)
-def get_area(area_id: int, db: Session = Depends(get_db)):
-    return area_get(db, area_id).roles
-
 @router.post("/", response_model=AreaOut, status_code=status.HTTP_201_CREATED)
 def create_area(area: AreaCreate, db: Session = Depends(get_db)):
     return area_create(db, area)
