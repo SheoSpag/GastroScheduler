@@ -1,3 +1,5 @@
+import json
+
 
 def test_generate_weekly_shifts(client):
     #Company
@@ -11,19 +13,16 @@ def test_generate_weekly_shifts(client):
     area_data = {"opening_time": "11:30:00","closing_time": "20:00:00","minimum_staff": 1,"maximum_staff": 2,"name": "Pasta","branch_id": 1}    
     client.post("/area/", json=area_data)
 
-    #Pasta Role
+    #Pasta Roles
     role_data = {"name": "Pasta Cheff", "area_id": 1 }
     client.post("/role/", json=role_data)
     role_data = {"name": "Pasta Cheff asistant", "area_id": 1 }
     client.post("/role/", json=role_data)
     
-    role_data = {"name": "Pasta Cheff Assistant", "area_id": 1 }
-    client.post("/role/", json=role_data)
-    
     #2 Employees
-    employee_data = {"name": "Employee pasta", "hourly_wage": 10.0, "monthly_hours": 120, "branch_id": 1}
+    employee_data = {"name": "Gio - Pasta", "hourly_wage": 10.0, "monthly_hours": 120, "branch_id": 1}
     client.post("/employee/", json=employee_data)
-    employee_data = {"name": "Employee help pasta", "hourly_wage": 10.0, "monthly_hours": 120, "branch_id": 1}
+    employee_data = {"name": "Rodri - Cheff asistant", "hourly_wage": 10.0, "monthly_hours": 120, "branch_id": 1}
     client.post("/employee/", json=employee_data)
 
     #Asign role to employees    
@@ -33,9 +32,12 @@ def test_generate_weekly_shifts(client):
     response = client.post("/ia/generate-weekly-shifts/branch/1")
     assert response.status_code == 200
     data = response.json()
-
-    assert "respuesta_ia" in data
-    shifts = data["respuesta_ia"]
+    
+    try:
+        shifts = json.loads(data["respuesta_ia"])
+    except json.JSONDecodeError:
+        raise AssertionError(f"La IA devolvió una respuesta inválida: {data['respuesta_ia']}")
+    
     assert isinstance(shifts, list)
     assert len(shifts) > 0
     assert all("start_date_time" in s for s in shifts)

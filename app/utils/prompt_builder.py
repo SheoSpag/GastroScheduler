@@ -35,17 +35,17 @@ def generate_weekly_shift_prompt_for_area(branch):
     prompt = f"Generá todos los turnos semanales para la sucursal ubicada en **{branch.address}**, desde el lunes {start_date} hasta el domingo {start_date + timedelta(days=6)}.\n\n"
 
     for area in branch.areas:
-        prompt += f"### Area: {area.name}\n"
+        prompt += f"### Area: {area.name} \n\n"
 
-        prompt += f"### Roles requeridos para el area {area.name}:\n"
+        prompt += f"- Roles requeridos: \n"
         for role in area.roles:
-            prompt += f"- {role.name}\n\n"
-            prompt += "### Empleados habilitados para dicho rol y sus bloqueos:\n"
+            prompt += f"\n### Role  {role.name}\n"
+            prompt += "     - Empleados habilitados y sus bloqueos:\n"
             for emp in role.employees:
                 bloqueos = ", ".join(getattr(emp, "blocks", [])) if hasattr(emp, "blocks") else "sin bloqueos"
-                prompt += f"- {emp.name}: bloqueos: {bloqueos}\n"
+                prompt += f"       - {emp.name} | bloqueos: {bloqueos}\n"
     
-    prompt += "\n---\n### Consideraciones:\n"
+    prompt += "\n---\n\n### Consideraciones:\n"
 
     prompt += """
     - Repartí los turnos de forma justa entre los empleados.
