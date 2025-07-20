@@ -17,5 +17,7 @@ class Branch(Base):
     
     areas = relationship("Area", back_populates="branch", cascade="all, delete-orphan")
 
+    managers = relationship("BranchManager", back_populates="branch")
+
 
     

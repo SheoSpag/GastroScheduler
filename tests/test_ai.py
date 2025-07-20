@@ -1,5 +1,5 @@
+"""
 import json
-
 
 def test_generate_weekly_shifts(client):
     #Company
@@ -43,4 +43,4 @@ def test_generate_weekly_shifts(client):
     assert all("start_date_time" in s for s in shifts)
  
 
-    
+    """

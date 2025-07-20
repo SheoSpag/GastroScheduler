@@ -1,6 +1,6 @@
 from app.db.db import Base, engine
 
-from app.models import (area, branch, company, day_settings, employee_role, employee, lock_reason, lock, role, shift)
+from app.models import (area, branch, company, day_settings, employee_role, employee, lock_reason, lock, role, shift, branch_manager)
 
 def init_db():
     print("Creating tables in the database..")
