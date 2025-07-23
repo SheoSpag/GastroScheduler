@@ -6,8 +6,12 @@ class BranchManagerBase(BaseModel):
 
 class BranchManagerCreate(BranchManagerBase):
     password: str 
+    
+class BranchManagerLogin(BaseModel):
+    email: str
+    password: str
 
 class BranchManagerOut(BranchManagerBase):
     id: int
-
-    model_config = {"from_attributes": True} 
+    
+    model_config = {"from_attributes": True}
