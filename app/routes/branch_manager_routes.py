@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, Query
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from app.schemas.branch_manager import BranchManagerCreate, BranchManagerOut
@@ -15,8 +15,8 @@ router = APIRouter()
 def register_branch_manager( branch_manager_in: BranchManagerCreate, db: Session = Depends(get_db)):
     return create_branch_manager(db, email=branch_manager_in.email, password=branch_manager_in.password, branch_id=branch_manager_in.branch_id)
 
-@router.get("/verify-email", status_code=status.HTTP_200_OK)
-def verify_email(token: str, db: Session = Depends(get_db)):
+@router.get("/verify", status_code=status.HTTP_200_OK)
+def verify_email(token: str = Query(...), db: Session = Depends(get_db)):
     
     email = verify_email_token(token)
     
@@ -28,6 +28,8 @@ def verify_email(token: str, db: Session = Depends(get_db)):
 def login_branch_manager(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     
     manager = authenticate_branch_manager(db, form_data.username, form_data.password)
+    
+    
     token = create_access_token(data={"sub": manager.email})
      
     return {"access_token": token, "token_type": "bearer"}
