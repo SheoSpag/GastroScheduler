@@ -9,11 +9,13 @@ client = OpenAI(
     api_key=os.getenv("OPENROUTER_API_KEY")
 )
 
+MODEL = "mistralai/mistral-7b-instruct:free"
+
 def generate_shifts(prompt: str):
     completion = client.chat.completions.create(
-        model="mistralai/mistral-7b-instruct:free",
+        model=MODEL,
         messages=[
-            {"role": "system", "content": "Sos un planificador de turnos. Respondé únicamente con JSON."},
+            {"role": "system", "content": "Sos un planificador de turnos. Respondé únicamente con JSON válido, sin explicaciones."},
             {"role": "user", "content": prompt}]
     )
     return completion.choices[0].message.content

@@ -1,6 +1,3 @@
-"""
-import json
-
 def test_generate_weekly_shifts(client):
     #Company
     company_data = {"name": "Test Company"}
@@ -29,18 +26,19 @@ def test_generate_weekly_shifts(client):
     client.post("/employee/1/role/1")
     client.post("/employee/2/role/2")
     
+    response = client.get("/shift/")
+    
+    assert response.status_code == 204
+    
     response = client.post("/ia/generate-weekly-shifts/branch/1")
-    assert response.status_code == 200
-    data = response.json()
-    
-    try:
-        shifts = json.loads(data["respuesta_ia"])
-    except json.JSONDecodeError:
-        raise AssertionError(f"La IA devolvió una respuesta inválida: {data['respuesta_ia']}")
-    
-    assert isinstance(shifts, list)
-    assert len(shifts) > 0
-    assert all("start_date_time" in s for s in shifts)
- 
+    assert response.status_code == 201
 
-    """
+    response = client.get("/shift/")
+    
+
+    
+    assert response.status_code == 200
+    
+    
+
+    

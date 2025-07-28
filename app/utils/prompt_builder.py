@@ -32,30 +32,30 @@ def build_weekly_shifts(branch_id: int, db: Session):
     
 def generate_weekly_shift_prompt_for_area(branch):
     start_date = get_next_monday()
-    prompt = f"Generá todos los turnos semanales para la sucursal ubicada en **{branch.address}**, desde el lunes {start_date} hasta el domingo {start_date + timedelta(days=6)}.\n\n"
+    prompt = f"Generate all weekly shifts for the branch located at **{branch.address}**, from Monday {start_date} to Sunday {start_date + timedelta(days=6)}.\n\n"
 
     for area in branch.areas:
         prompt += f"### Area: {area.name} \n\n"
 
-        prompt += f"- Roles requeridos: \n"
+        prompt += f"- Required roles: \n"
         for role in area.roles:
             prompt += f"\n### Role  {role.name}\n"
-            prompt += "     - Empleados habilitados y sus bloqueos:\n"
+            prompt += "     - Eligible employees and their blocks:\n"
             for emp in role.employees:
-                bloqueos = ", ".join(getattr(emp, "blocks", [])) if hasattr(emp, "blocks") else "sin bloqueos"
-                prompt += f"       - {emp.name} | bloqueos: {bloqueos}\n"
+                blocks = ", ".join(getattr(emp, 'blocks', [])) if hasattr(emp, 'blocks') else "no blocks"
+                prompt += f"       - {emp.name} | blocks: {blocks}\n"
     
-    prompt += "\n---\n\n### Consideraciones:\n"
+    prompt += "\n---\n\n### Considerations:\n"
 
     prompt += """
-    - Repartí los turnos de forma justa entre los empleados.
-    - Respetá los bloqueos.
-    - Evitá sobrecargar a un mismo empleado todos los días  (Esto solo si es posible).
-    - Tene en cuenta tanto los horarios de apertura y cierre como la cantidad minima y maxima establecida en las areas
+    - Distribute shifts fairly among employees.
+    - Respect the blocks.
+    - Avoid overloading the same employee every day (only if possible).
+    - Take into account both the opening and closing hours as well as the minimum and maximum staff required per area.
     
-    ### Formato esperado:
+    ### Expected format:
 
-    Respondé únicamente con un array JSON que contenga objetos con esta estructura:
+    Respond only with a JSON array containing objects with the following structure:
 
     [
 
@@ -69,16 +69,16 @@ def generate_weekly_shift_prompt_for_area(branch):
         ...
     ]
 
-    Asegurate de que:
-    - Todos los campos estén presentes.
-    - Las fechas y horas estén en formato ISO 8601 (YYYY-MM-DD y HH:MM:SS).
-    - El array no esté envuelto en ningún texto adicional, ni explicaciones.
+    IMPORTANT: ONLY return the JSON array, no text, no explanations, no extra characters.  
+    Date and datetime fields must be in ISO format.
 
+    Make sure that:
+    - All fields are present.
+    - Dates and times are in ISO 8601 format (YYYY-MM-DD and HH:MM:SS).
+    - The array is not wrapped in any extra text or explanations.
 
     """
-    
     print(prompt)
-    
     return prompt
 
 
