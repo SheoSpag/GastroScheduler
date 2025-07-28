@@ -31,13 +31,4 @@ def send_verification_email(to_email: str, verification_link: str):
         "X-API-Key": API_KEY
     }
 
-    response = requests.post(url, data=data, headers=headers)
-    
-    if response.status_code == 200:
-        json_resp = response.json()
-        if json_resp.get("success"):
-            print("✅ Email sent successfully.")
-        else:
-            print("❌ Failed to send email:", json_resp.get("message"))
-    else:
-        print(f"❌ HTTP error {response.status_code}: {response.text}")
+    requests.post(url, data=data, headers=headers)

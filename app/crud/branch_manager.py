@@ -38,15 +38,11 @@ def create_branch_manager(db: Session, email: str, password: str, branch_id: int
         
         #Just 4 validation
         get_branch(db, branch_id)
-        print("Antes del hash")
         hashed_pw = hash_password(password)
         db_branch_manager = BranchManager(email=email, hashed_password=hashed_pw, branch_id=branch_id)
         db.add(db_branch_manager)
         
-        
-        print("Antes del token")
         token = create_email_verification_token(email)
-        print(f"Token creado cheto {token}")
         verification_link = f"http://localhost:8000/branch_manager/verify?token={token}"
         
         send_verification_email(to_email=email, verification_link=verification_link)

@@ -59,4 +59,22 @@ def test_login_branch_manager(client):
                 
     assert response.status_code == 200
     
+
+def test_email_verification_endpoint(client):
+    from app.auth.jwt_auth import create_email_verification_token
+    email = "verifyme@example.com"
     
+    client.post("/company/", json={"name": "Test Co"})
+    client.post("/branch/", json={"address": "Calle Falsa 123", "company_id": 1})
+    client.post("/branch_manager/register/", json={
+        "email": email,
+        "password": "pass123",
+        "branch_id": 1
+    })
+
+    token = create_email_verification_token(email)  
+
+    response = client.get(f"/branch_manager/verify?token={token}")
+    
+    assert response.status_code == 200
+    assert response.json() == {"email": "Email verified"}
