@@ -21,6 +21,7 @@ class MessageInput(BaseModel):
 def generate_weekly_shifts(branch_id: int, db: Session = Depends(get_db)):
     try:
         ai_shifts = build_weekly_shifts(branch_id, db) 
+        print(ai_shifts)
         data = create_shifts_bulk(ai_shifts, db)
         return data
     except Exception as e:

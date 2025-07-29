@@ -6,10 +6,10 @@ load_dotenv()
 
 client = OpenAI(
     base_url="https://openrouter.ai/api/v1",
-    api_key=os.getenv("OPENROUTER_API_KEY")
+    api_key=os.getenv("OPENROUTER_API_KEY2")
 )
 
-MODEL = "mistralai/mistral-7b-instruct:free"
+MODEL = "google/gemini-2.0-flash-exp:free"
 
 def generate_shifts(prompt: str):
     completion = client.chat.completions.create(
