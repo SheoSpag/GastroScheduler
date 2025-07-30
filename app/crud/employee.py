@@ -6,7 +6,8 @@ from app.crud.branch import get_branch
 from app.exceptions.customError import CustomError
 from app.utils.error_handler import handle_exception
 from app.crud.branch import get_branch_company_id
-from app.crud.role import get_role_branch_id
+from sqlalchemy import extract
+
 
 def get_employee(db: Session, employee_id: int):
     from app.models.employee import Employee
@@ -110,5 +111,14 @@ def get_employee_roles(db: Session, employee_id: int):
     searched_employee = get_employee(db, employee_id)
 
     return searched_employee.roles
-        
-    
+
+def calculate_emplyee_total_shift_hours(db: Session, month_number: int, year_number: int, employee_id: int):
+    from app.models.shift import Shift
+
+    shifts = db.query(Shift).filter(extract('year', Shift.date) == year_number, extract('month', Shift.date) == month_number, Shift.employee_id == employee_id).all()
+    total_hours = 0
+    for shift in shifts:
+        duration = shift.end_date_time - shift.start_date_time
+        total_hours += duration.total_seconds() / 3600
+    return total_hours
+

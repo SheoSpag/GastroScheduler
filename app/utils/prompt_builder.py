@@ -1,13 +1,13 @@
 from datetime import timedelta
-from datetime import date, timedelta
 from sqlalchemy.orm import Session
-from fastapi import status
-from app.crud.branch import get_branch
-from services.ai_client import generate_shifts
-from app.crud.branch import get_branch_areas, get_branch_employees
+from app.crud.employee import calculate_emplyee_total_shift_hours
+from app.crud.branch import get_branch, get_branch_employees, get_branch_areas
 from app.exceptions.customError import CustomError
 from app.utils.error_handler import handle_exception
 import json
+from services.ai_client import generate_shifts
+from fastapi import status
+from datetime import date, datetime
 
 
 """""
@@ -33,7 +33,7 @@ def build_weekly_shifts(branch_id: int, db: Session):
 
 """
     
-def generate_weekly_shift_prompt_for_area(branch):
+def generate_weekly_shift_prompt_for_area(branch, db):
     start_date = get_next_monday()
     prompt = f"Generate all weekly shifts for the branch located at **{branch.address}**, from Monday {start_date} to Sunday {start_date + timedelta(days=6)}.\n"
 
@@ -49,7 +49,10 @@ def generate_weekly_shift_prompt_for_area(branch):
             prompt += "     - Eligible employees and their blocks:\n"
             for emp in role.employees:
                 blocks = ", ".join(getattr(emp, 'blocks', [])) if hasattr(emp, 'blocks') else "no blocks"
+                actual_shift_hours = calculate_emplyee_total_shift_hours(db, datetime.now().month, datetime.now().year, emp.id)
                 prompt += f"       - {emp.name} | blocks: {blocks}\n"
+                prompt += f"                         - {emp.monthly_hours} hours a month — Current month: {actual_shift_hours} hours assigned\n"
+                prompt += f"                         - blocks: {blocks}\n"
     
     prompt += "\n---\n\n### Considerations:\n"
 
@@ -82,6 +85,23 @@ def generate_weekly_shift_prompt_for_area(branch):
     - All fields are present.
     - Dates and times are in ISO 8601 format (YYYY-MM-DD and HH:MM:SS).
     - The array is not wrapped in any extra text or explanations.
+    
+    ### EMPLOYEE WORKLOAD CONSTRAINTS:
+• For each employee, provide:
+    – Contracted hours per month.
+    – Hours already worked this month.
+• When generating shifts:
+    1. Calculate remaining hours = contracted – worked.
+    2. Assign shifts so the employee approaches—but does not exceed—their monthly target by more than 5–10 hours.
+    3. Do not assign more than 40 hours per week per employee.
+
+### DAYS OFF RULE:
+• Each employee must have at least 2 full days off per week.
+• Preferably, those days off are not consecutive unless required for coverage.
+
+### ROTATION RULE:
+• If a role has multiple eligible employees, assign in round-robin order.
+• Balance total weekly hours when choosing among eligible employees.
 
     """
     print(prompt)
@@ -96,7 +116,7 @@ def build_weekly_shifts(branch_id: int, db: Session):
         get_branch_areas(db, branch_id)
 
         #ai_response = generate_shifts(generate_weekly_shift_prompt_for_area(branch))
-        ai_response = generate_shifts(test_prompt(branch))
+        ai_response = generate_shifts(test_prompt(branch, db))
         print("AI response:", ai_response)
         shifts = json.loads(ai_response)
         
@@ -108,7 +128,7 @@ def build_weekly_shifts(branch_id: int, db: Session):
         handle_exception(e, "Interal error generating the shifts")
 
     
-def test_prompt(branch):
+def test_prompt(branch, db):
     start_date = get_next_monday()
     end_date = start_date + timedelta(days=6)
 
@@ -147,7 +167,11 @@ Period: {start_date} to {end_date}
 """
             for emp in role.employees:
                 blocks = ", ".join(getattr(emp, 'blocks', [])) if hasattr(emp, 'blocks') else "no blocks"
-                prompt += f"      - {emp.name} | employee_id: {emp.id} | blocks: {blocks}\n"
+                actual_shift_hours = calculate_emplyee_total_shift_hours(db, datetime.now().month, datetime.now().year, emp.id)
+                prompt += f"       - {emp.name} | id: {emp.id}\n"
+                prompt += f"                         - {emp.monthly_hours} hours a month — Current month: {actual_shift_hours} hours assigned\n"
+                prompt += f"                         - blocks: {blocks}\n"
+    
 
     prompt += """
 ---
@@ -181,7 +205,23 @@ Respond ONLY with a JSON array in this format:
 - ONLY return the JSON array.
 - Ensure all fields are present and valid.
 - Use ISO 8601 format for all date/time fields.
-- 
+
+### EMPLOYEE WORKLOAD CONSTRAINTS:
+• For each employee, provide:
+    – Contracted hours per month.
+    – Hours already worked this month.
+• When generating shifts:
+    1. Calculate remaining hours = contracted – worked.
+    2. Assign shifts so the employee approaches—but does not exceed—their monthly target by more than 5–10 hours.
+    3. Do not assign more than 40 hours per week per employee.
+
+### DAYS OFF RULE:
+• Each employee must have at least 2 full days off per week.
+• Preferably, those days off are not consecutive unless required for coverage.
+
+### ROTATION RULE:
+• If a role has multiple eligible employees, assign in round-robin order.
+• Balance total weekly hours when choosing among eligible employees.
 
 """
     print(prompt)
