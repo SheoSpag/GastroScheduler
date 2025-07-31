@@ -9,7 +9,7 @@ client = OpenAI(
     api_key=os.getenv("OPENROUTER_API_KEY2")
 )
 
-MODEL = "google/gemini-2.0-flash-exp:free"
+MODEL = "google/gemini-2.5-pro-exp-03-25"
 
 def generate_shifts(prompt: str):
     completion = client.chat.completions.create(

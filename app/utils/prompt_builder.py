@@ -140,7 +140,27 @@ The goal is to:
 - Cover all required roles within each area.
 - Respect area schedules and staffing requirements.
 - Assign employees fairly, respecting availability blocks (when possible).
+- Enforce employee workload and days-off rules.
 - Output strictly in JSON format (see structure below).
+
+---
+
+### EMPLOYEE WORKLOAD CONSTRAINTS:
+• For each employee, provide:
+    – Contracted hours per month.
+    – Hours already worked this month.
+• When generating shifts:
+    1. Calculate remaining hours = contracted – worked.
+    2. Assign shifts so the employee approaches—but does not exceed—their monthly target by more than 5–10 hours.
+    3. Do not assign more than 40 hours per week per employee.
+
+### DAYS OFF RULE:
+• Each employee must have at least 2 full days off per week.
+• Preferably, those days off are not consecutive unless required for coverage.
+
+### ROTATION RULE:
+• If a role has multiple eligible employees, assign in round-robin order.
+• Balance total weekly hours when choosing among eligible employees.
 
 ---
 
@@ -172,7 +192,6 @@ Period: {start_date} to {end_date}
                 prompt += f"                         - {emp.monthly_hours} hours a month — Current month: {actual_shift_hours} hours assigned\n"
                 prompt += f"                         - blocks: {blocks}\n"
     
-
     prompt += """
 ---
 
@@ -193,10 +212,10 @@ Respond ONLY with a JSON array in this format:
 [
     {
         "start_date_time": "2025-07-14T08:00:00",
-        "end_date_time": "2025-07-14T14:00:00",
-        "date": "2025-07-14",
-        "role_id": 1,
-        "employee_id": 2
+        "end_date_time":   "2025-07-14T14:00:00",
+        "date":            "2025-07-14",
+        "role_id":         1,
+        "employee_id":     2
     }
 ]
 
@@ -205,25 +224,8 @@ Respond ONLY with a JSON array in this format:
 - ONLY return the JSON array.
 - Ensure all fields are present and valid.
 - Use ISO 8601 format for all date/time fields.
-
-### EMPLOYEE WORKLOAD CONSTRAINTS:
-• For each employee, provide:
-    – Contracted hours per month.
-    – Hours already worked this month.
-• When generating shifts:
-    1. Calculate remaining hours = contracted – worked.
-    2. Assign shifts so the employee approaches—but does not exceed—their monthly target by more than 5–10 hours.
-    3. Do not assign more than 40 hours per week per employee.
-
-### DAYS OFF RULE:
-• Each employee must have at least 2 full days off per week.
-• Preferably, those days off are not consecutive unless required for coverage.
-
-### ROTATION RULE:
-• If a role has multiple eligible employees, assign in round-robin order.
-• Balance total weekly hours when choosing among eligible employees.
-
 """
+
     print(prompt)
     return prompt
 
